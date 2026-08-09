@@ -1,8 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Accord, Product, SizeMl } from "@/types";
-import { formatBRL, precoComPromo } from "@/lib/utils";
+import { formatBRL, isOptimizableImageUrl, precoComPromo, whatsappUrl } from "@/lib/utils";
+
+const WHATSAPP_NUMBER = "5545999736188";
 
 export default function ProductModal({
   product,
@@ -21,6 +24,11 @@ export default function ProductModal({
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
   const productAccords = accords.filter((a) => product.acordes.includes(a.key));
 
+  function handleConsultarFrascoOriginal() {
+    const mensagem = `Olá! Gostaria de consultar a disponibilidade e o valor do frasco lacrado completo do perfume ${product.nome} da ${product.marca}.`;
+    window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
+  }
+
   return (
     <div className="fixed inset-0 z-50 animate-fade-in">
       <div className="absolute inset-0 modal-backdrop" onClick={onClose} />
@@ -37,16 +45,20 @@ export default function ProductModal({
           </div>
 
           <div className="px-6 pb-6 -mt-8">
-            <div
-              className="w-full aspect-[4/3] rounded-2xl overflow-hidden mb-4 flex items-center justify-center"
-              style={{
-                background:
-                  "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.9), rgba(207,227,221,0.4))",
-              }}
-            >
+            <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden mb-4 flex items-center justify-center bg-white">
               {product.imagem ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={product.imagem} alt={product.nome} className="w-full h-full object-cover" />
+                isOptimizableImageUrl(product.imagem) ? (
+                  <Image
+                    src={product.imagem}
+                    alt={product.nome}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 512px"
+                    className="object-contain"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={product.imagem} alt={product.nome} className="w-full h-full object-contain" />
+                )
               ) : (
                 <p className="font-display text-2xl" style={{ color: "var(--ink-soft)" }}>
                   {product.nome}
@@ -138,6 +150,14 @@ export default function ProductModal({
               className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide"
             >
               Adicionar ao carrinho
+            </button>
+
+            <button
+              type="button"
+              onClick={handleConsultarFrascoOriginal}
+              className="w-full mt-2 text-center text-sm text-stone-500 hover:text-stone-800 underline underline-offset-4 transition-colors"
+            >
+              Consultar disponibilidade do frasco lacrado
             </button>
           </div>
         </div>

@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { Product } from "@/types";
+import { isOptimizableImageUrl } from "@/lib/utils";
 
 function BottleFallback({ seed }: { seed: string }) {
   const colors = ["#6E9C93", "#A9895C", "#8C6E63", "#6C7A89", "#B08968", "#5E7C74"];
@@ -42,16 +44,20 @@ export default function ProductCard({
           -{product.promo.desconto}%
         </span>
       )}
-      <div
-        className="w-full aspect-square rounded-xl flex items-center justify-center overflow-hidden mb-3"
-        style={{
-          background:
-            "radial-gradient(circle at 30% 20%, rgba(255,255,255,0.9), rgba(207,227,221,0.4))",
-        }}
-      >
+      <div className="relative w-full aspect-square rounded-xl flex items-center justify-center overflow-hidden mb-3 bg-white">
         {product.imagem ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={product.imagem} alt={product.nome} className="w-full h-full object-cover" />
+          isOptimizableImageUrl(product.imagem) ? (
+            <Image
+              src={product.imagem}
+              alt={product.nome}
+              fill
+              sizes="(max-width: 768px) 50vw, 25vw"
+              className="object-contain"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={product.imagem} alt={product.nome} className="w-full h-full object-contain" />
+          )
         ) : (
           <div className="w-20 h-24">
             <BottleFallback seed={product.id} />

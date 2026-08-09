@@ -1,8 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Accord, Category, Product, SizeMl } from "@/types";
+import { isOptimizableImageUrl } from "@/lib/utils";
+
+type StorageFile = { name: string; url: string };
 
 function emptyProduct(categories: Category[]): Product {
   return {
@@ -40,6 +44,15 @@ export default function ProductForm({
   const [form, setForm] = useState<Product>(product || emptyProduct(categories));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [existingImages, setExistingImages] = useState<StorageFile[]>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/storage/perfumes")
+      .then((res) => res.json())
+      .then((data) => setExistingImages(data.files || []))
+      .catch(() => setExistingImages([]));
+  }, []);
 
   function update<K extends keyof Product>(key: K, value: Product[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -52,12 +65,25 @@ export default function ProductForm({
     }));
   }
 
-  function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImageFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => update("imagem", (ev.target?.result as string) || "");
-    reader.readAsDataURL(file);
+    setUploading(true);
+    setError("");
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      const res = await fetch("/api/admin/storage/perfumes", { method: "POST", body });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao enviar imagem.");
+      update("imagem", data.url as string);
+      setExistingImages((prev) => [...prev, { name: file.name, url: data.url }]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao enviar imagem.");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   }
 
   async function handleSave() {
@@ -134,22 +160,66 @@ export default function ProductForm({
       <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
         Imagem
       </label>
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-3 mb-2">
         {form.imagem && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={form.imagem} alt="" className="w-16 h-16 object-cover rounded-lg shrink-0" />
+          isOptimizableImageUrl(form.imagem) ? (
+            <Image
+              src={form.imagem}
+              alt=""
+              width={64}
+              height={64}
+              className="w-16 h-16 object-cover rounded-lg shrink-0 bg-white"
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={form.imagem} alt="" className="w-16 h-16 object-cover rounded-lg shrink-0 bg-white" />
+          )
         )}
         <div className="flex-1 min-w-0">
           <input
             type="text"
-            value={form.imagem?.startsWith("data:") ? "" : form.imagem}
+            value={form.imagem}
             onChange={(e) => update("imagem", e.target.value)}
             className="w-full rounded-lg px-3 py-2 text-sm mb-2"
             placeholder="Cole a URL da imagem"
           />
-          <input type="file" accept="image/*" onChange={handleImageFile} className="w-full text-xs" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageFile}
+            disabled={uploading}
+            className="w-full text-xs"
+          />
+          {uploading && (
+            <p className="text-xs mt-1" style={{ color: "var(--ink-soft)" }}>
+              Enviando imagem...
+            </p>
+          )}
         </div>
       </div>
+
+      {existingImages.length > 0 && (
+        <div className="mb-3">
+          <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
+            Ou vincular arquivo já enviado ao Storage
+          </label>
+          <select
+            value=""
+            onChange={(e) => {
+              const file = existingImages.find((f) => f.name === e.target.value);
+              if (file) update("imagem", file.url);
+            }}
+            className="w-full rounded-lg px-3 py-2 text-sm"
+          >
+            <option value="">Selecione um arquivo...</option>
+            {existingImages.map((f) => (
+              <option key={f.name} value={f.name}>
+                {f.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
         Descrição curta (aparece no card da vitrine)

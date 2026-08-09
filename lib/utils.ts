@@ -22,3 +22,18 @@ export function fillTemplate(template: string, vars: Record<string, string>): st
 export function whatsappUrl(numero: string, mensagem: string): string {
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
 }
+
+const SUPABASE_STORAGE_PREFIX = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/`
+  : null;
+
+/**
+ * next/image só otimiza hosts liberados em remotePatterns (next.config.ts).
+ * Produtos antigos podem ter URLs coladas manualmente de qualquer domínio;
+ * para essas, caímos num <img> normal em vez de quebrar a página.
+ */
+export function isOptimizableImageUrl(url: string): boolean {
+  if (!url) return false;
+  if (url.startsWith("/")) return true;
+  return !!SUPABASE_STORAGE_PREFIX && url.startsWith(SUPABASE_STORAGE_PREFIX);
+}
