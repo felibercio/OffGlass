@@ -1,0 +1,214 @@
+@import "tailwindcss";
+
+:root {
+  --cream: #faf8f4;
+  --cream-deep: #f1ece3;
+  --ink: #1b1f1d;
+  --ink-soft: #4a504c;
+  --teal: #6e9c93;
+  --teal-deep: #3f6b62;
+  --teal-pale: #cfe3dd;
+  --gold: #c7a876;
+  --gold-deep: #a9895c;
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-bg-strong: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --shadow-soft: 0 8px 30px rgba(31, 45, 41, 0.08);
+}
+
+@theme inline {
+  --color-cream: var(--cream);
+  --color-cream-deep: var(--cream-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-teal: var(--teal);
+  --color-teal-deep: var(--teal-deep);
+  --color-teal-pale: var(--teal-pale);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(207, 227, 221, 0.55), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(199, 168, 118, 0.12), transparent 55%),
+    linear-gradient(180deg, var(--cream) 0%, var(--cream-deep) 100%);
+  background-attachment: fixed;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+.font-display {
+  font-family: var(--font-display), serif;
+}
+
+.tracking-label {
+  letter-spacing: 0.14em;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--glass-border);
+}
+
+.btn-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  transition: all 0.2s ease;
+}
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.btn-teal {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+  color: #fff;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(63, 107, 98, 0.28);
+}
+.btn-teal:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.btn-teal:active {
+  transform: translateY(0);
+}
+.btn-teal:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pill {
+  border: 1px solid rgba(110, 156, 147, 0.35);
+  background: rgba(255, 255, 255, 0.55);
+  transition: all 0.18s ease;
+}
+.pill.active {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(63, 107, 98, 0.3);
+}
+
+.chip {
+  border: 1px solid rgba(27, 31, 29, 0.1);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(10px);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.chip.active {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(31, 45, 41, 0.12);
+}
+
+.divider-fade {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(27, 31, 29, 0.16), transparent);
+}
+
+.fab-shadow {
+  box-shadow: 0 10px 30px rgba(63, 107, 98, 0.35);
+}
+
+.modal-backdrop {
+  background: rgba(20, 26, 24, 0.42);
+  backdrop-filter: blur(4px);
+}
+
+.badge-promo {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-deep) 100%);
+  color: #fff;
+}
+
+.accord-badge {
+  border: 1px solid rgba(27, 31, 29, 0.08);
+}
+
+input[type="text"],
+input[type="number"],
+input[type="password"],
+input[type="tel"],
+input[type="email"],
+select,
+textarea {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(27, 31, 29, 0.15);
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+  border-color: var(--teal);
+}
+
+::selection {
+  background: var(--teal-pale);
+}
+
+.animate-slide-up {
+  animation: slideUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s ease;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
