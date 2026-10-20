@@ -50,7 +50,7 @@ export default async function PedidosPage() {
             const statusCfg = STATUS_LABELS[statusKey] || STATUS_LABELS.novo;
             const telLimpo = p.telefone_cliente.replace(/\D/g, "");
             const numeroCompleto = telLimpo.startsWith("55") ? telLimpo : `55${telLimpo}`;
-            const msg = `Olá ${p.nome_cliente}! Aqui é da Offglass Sent referente ao seu pedido.`;
+            const msg = `Olá ${p.nome_cliente}! Aqui é da Offglass Scent referente ao seu pedido.`;
             const waLink = whatsappUrl(numeroCompleto, msg);
 
             return (

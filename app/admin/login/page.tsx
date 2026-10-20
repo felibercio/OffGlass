@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen flex items-center justify-center px-6">
       <div className="glass-strong rounded-2xl p-8 w-full max-w-sm">
         <p className="text-[10px] tracking-label uppercase text-center mb-1" style={{ color: "var(--gold-deep)" }}>
-          Offglass Sent
+          Offglass Scent
         </p>
         <h1 className="font-display text-2xl text-center mb-6">Painel administrativo</h1>
 

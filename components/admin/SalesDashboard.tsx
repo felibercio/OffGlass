@@ -201,7 +201,7 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
 
   function abrirWhatsAppCliente(p: PedidoRow) {
     const statusLabel = STATUS_LABELS[p.status || "novo"]?.label || "Em andamento";
-    const mensagem = `Olá ${p.nome_cliente}! Aqui é da Offglass Sent. Seu pedido de ${formatBRL(
+    const mensagem = `Olá ${p.nome_cliente}! Aqui é da Offglass Scent. Seu pedido de ${formatBRL(
       p.total
     )} está com o status: *${statusLabel}*. Em caso de dúvidas, estamos à disposição!`;
     const telLimpo = p.telefone_cliente.replace(/\D/g, "");

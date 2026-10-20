@@ -113,7 +113,7 @@ export default function CatalogApp({
   }
 
   function generalWhatsapp() {
-    const mensagem = "Olá! Vim pelo catálogo OFFGLASS SENT e gostaria de tirar uma dúvida.";
+    const mensagem = "Olá! Vim pelo catálogo OFFGLASS SCENT e gostaria de tirar uma dúvida.";
     window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
   }
 
@@ -133,7 +133,7 @@ export default function CatalogApp({
               priority
             />
             <span className="text-[10px] tracking-label uppercase font-medium mt-0.5" style={{ color: "var(--gold-deep)" }}>
-              Sent
+              Scent
             </span>
           </div>
           <button onClick={() => setCartOpen(true)} className="relative btn-glass rounded-full p-2.5" aria-label="Carrinho">
@@ -162,7 +162,7 @@ export default function CatalogApp({
           seja bem-vinda(o).
         </p>
         <p className="text-sm mt-3 max-w-md" style={{ color: "var(--ink-soft)" }}>
-          Fragrâncias de nicho, originais, decantadas com cuidado em frascos de <b>2ml, 5ml e 10ml</b>, etiquetados e
+          Fragrâncias originais, decantadas com cuidado em frascos de <b>2ml, 5ml e 10ml</b>, etiquetados e
           prontos para uso.
         </p>
       </section>
@@ -217,7 +217,14 @@ export default function CatalogApp({
         <p className="text-[11px] tracking-label uppercase" style={{ color: "var(--ink-soft)" }}>
           Siga nossa página
         </p>
-        <p className="font-display text-lg">@offglassscent</p>
+        <a
+          href="https://www.instagram.com/offglassscent/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-block font-display text-lg hover:opacity-75 transition-opacity"
+        >
+          @offglassscent
+        </a>
       </footer>
     </>
   );

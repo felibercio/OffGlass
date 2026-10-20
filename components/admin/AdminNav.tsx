@@ -31,7 +31,7 @@ export default function AdminNav() {
       <div className="flex items-center justify-between px-4 py-3">
         <div>
           <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
-            Offglass Sent
+            Offglass Scent
           </p>
           <h1 className="font-display text-xl font-semibold">Painel administrativo</h1>
         </div>
