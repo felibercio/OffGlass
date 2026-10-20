@@ -28,9 +28,11 @@ function BottleFallback({ seed }: { seed: string }) {
 export default function ProductCard({
   product,
   onOpen,
+  priority = false,
 }: {
   product: Product;
   onOpen: (product: Product) => void;
+  priority?: boolean;
 }) {
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
   const coverImage = product.imagens?.[0] || product.imagem;
@@ -53,6 +55,7 @@ export default function ProductCard({
               src={coverImage}
               alt={product.nome}
               fill
+              priority={priority}
               sizes="(max-width: 768px) 50vw, 25vw"
               className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             />

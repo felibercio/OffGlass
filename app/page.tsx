@@ -1,7 +1,9 @@
 import { getProducts, getCategories, getAccords, getMensagemTemplate } from "@/lib/data";
 import CatalogApp from "@/components/catalog/CatalogApp";
 
-export const revalidate = 0; // sempre buscar dados atuais do Supabase
+// ISR: página em cache na CDN Edge da Vercel. Atualizada a cada 60s ou imediatamente
+// quando qualquer alteração for feita no painel /admin (via revalidatePath).
+export const revalidate = 60;
 
 export default async function Home() {
   const [products, categories, accords, mensagemPedidoTemplate] = await Promise.all([

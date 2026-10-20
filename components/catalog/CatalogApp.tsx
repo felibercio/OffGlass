@@ -177,8 +177,13 @@ export default function CatalogApp({
           </div>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filtered.map((p) => (
-              <ProductCard key={p.id} product={p} onOpen={setModalProduct} />
+            {filtered.map((p, index) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                priority={index < 4}
+                onOpen={setModalProduct}
+              />
             ))}
           </div>
         )}

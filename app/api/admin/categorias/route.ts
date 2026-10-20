@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { revalidatePath } from "next/cache";
 
 export async function POST(req: NextRequest) {
   const user = await requireAdmin();
@@ -15,6 +16,7 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase.from("categorias").upsert({ key, label });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
+  revalidatePath("/");
   return NextResponse.json({ ok: true });
 }
 
@@ -39,5 +41,6 @@ export async function DELETE(req: NextRequest) {
   const { error } = await supabase.from("categorias").delete().eq("key", key);
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
+  revalidatePath("/");
   return NextResponse.json({ ok: true });
 }

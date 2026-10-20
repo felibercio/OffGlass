@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import {
   Product,
   Category,
@@ -8,7 +8,7 @@ import {
 } from "@/types";
 
 export async function getProducts(): Promise<Product[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("produtos")
     .select("*")
@@ -21,7 +21,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase.from("categorias").select("*");
   if (error) {
     console.error("Erro ao buscar categorias:", error.message);
@@ -31,7 +31,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function getAccords(): Promise<Accord[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase.from("acordes").select("*");
   if (error) {
     console.error("Erro ao buscar acordes:", error.message);
@@ -41,7 +41,7 @@ export async function getAccords(): Promise<Accord[]> {
 }
 
 export async function getMensagemTemplate(chave: string, fallback: string): Promise<string> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const { data } = await supabase
     .from("mensagens_config")
     .select("template")
