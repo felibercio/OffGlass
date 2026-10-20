@@ -169,7 +169,7 @@ export default function ProductModal({
                     <span
                       key={a.key}
                       className="accord-badge text-xs px-3 py-1 rounded-full font-medium"
-                      style={{ background: a.cor + "22", color: a.cor }}
+                      style={{ background: a.cor + "22", color: "#000" }}
                     >
                       {a.label}
                     </span>
