@@ -33,35 +33,47 @@ export default function ProductCard({
   onOpen: (product: Product) => void;
 }) {
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
+  const coverImage = product.imagens?.[0] || product.imagem;
+  const photoCount = product.imagens?.length || (product.imagem ? 1 : 0);
 
   return (
     <button
       onClick={() => onOpen(product)}
-      className="card rounded-2xl p-4 flex flex-col text-left relative w-full"
+      className="card rounded-2xl p-4 flex flex-col text-left relative w-full group cursor-pointer"
     >
       {hasPromo && (
-        <span className="badge-promo absolute -top-2 -left-2 text-[10px] font-semibold px-2 py-1 rounded-full tracking-label uppercase shadow">
+        <span className="badge-promo absolute -top-2 -left-2 text-[10px] font-semibold px-2 py-1 rounded-full tracking-label uppercase shadow z-10">
           -{product.promo.desconto}%
         </span>
       )}
       <div className="relative w-full aspect-square rounded-xl flex items-center justify-center overflow-hidden mb-3 bg-white">
-        {product.imagem ? (
-          isOptimizableImageUrl(product.imagem) ? (
+        {coverImage ? (
+          isOptimizableImageUrl(coverImage) ? (
             <Image
-              src={product.imagem}
+              src={coverImage}
               alt={product.nome}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-contain"
+              className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={product.imagem} alt={product.nome} className="w-full h-full object-contain" />
+            <img
+              src={coverImage}
+              alt={product.nome}
+              className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-300"
+            />
           )
         ) : (
           <div className="w-20 h-24">
             <BottleFallback seed={product.id} />
           </div>
+        )}
+
+        {photoCount > 1 && (
+          <span className="absolute bottom-1.5 right-1.5 bg-black/60 text-white text-[9px] font-medium px-1.5 py-0.5 rounded-full backdrop-blur-sm">
+            📷 {photoCount}
+          </span>
         )}
       </div>
       <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>

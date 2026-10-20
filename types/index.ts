@@ -17,6 +17,7 @@ export interface Product {
   marca: string;
   nome: string;
   imagem: string;
+  imagens: string[]; // galeria de imagens
   descricaoCurta: string;
   descricaoCompleta: string;
   acordes: string[]; // chaves de Accord
@@ -37,6 +38,7 @@ export interface Accord {
 }
 
 export type FormaPagamento = "pix" | "cartao";
+export type PedidoStatus = "novo" | "preparo" | "enviado" | "concluido" | "cancelado";
 
 export interface CartItem {
   productId: string;
@@ -58,6 +60,8 @@ export interface Pedido {
   itens: PedidoItem[];
   formaPagamento: FormaPagamento;
   total: number;
+  status?: PedidoStatus;
+  criadoEm?: string;
 }
 
 export interface MensagemConfig {
@@ -72,6 +76,7 @@ export interface ProdutoRow {
   marca: string;
   nome: string;
   imagem: string;
+  imagens?: string[];
   descricao_curta: string;
   descricao_completa: string;
   acordes: string[];
@@ -83,6 +88,17 @@ export interface ProdutoRow {
   preco_10: number;
   promo_ativo: boolean;
   promo_desconto: number;
+}
+
+export interface PedidoRow {
+  id: string;
+  nome_cliente: string;
+  telefone_cliente: string;
+  itens: PedidoItem[];
+  forma_pagamento: FormaPagamento;
+  total: number;
+  status?: PedidoStatus;
+  criado_em: string;
 }
 
 export interface CategoriaRow {
@@ -102,12 +118,17 @@ export interface MensagemConfigRow {
 }
 
 export function fromProdutoRow(row: ProdutoRow): Product {
+  const imagens = Array.isArray(row.imagens) && row.imagens.length > 0
+    ? row.imagens.filter(Boolean)
+    : (row.imagem ? [row.imagem] : []);
+
   return {
     id: row.id,
     categoria: row.categoria,
     marca: row.marca,
     nome: row.nome,
-    imagem: row.imagem || "",
+    imagem: imagens[0] || row.imagem || "",
+    imagens,
     descricaoCurta: row.descricao_curta || "",
     descricaoCompleta: row.descricao_completa || "",
     acordes: row.acordes || [],
@@ -129,12 +150,17 @@ export function fromProdutoRow(row: ProdutoRow): Product {
 }
 
 export function toProdutoRow(p: Product): Omit<ProdutoRow, never> {
+  const imagens = Array.isArray(p.imagens) && p.imagens.length > 0
+    ? p.imagens.filter(Boolean)
+    : (p.imagem ? [p.imagem] : []);
+
   return {
     id: p.id,
     categoria: p.categoria,
     marca: p.marca,
     nome: p.nome,
-    imagem: p.imagem || "",
+    imagem: imagens[0] || p.imagem || "",
+    imagens,
     descricao_curta: p.descricaoCurta || "",
     descricao_completa: p.descricaoCompleta || "",
     acordes: p.acordes || [],

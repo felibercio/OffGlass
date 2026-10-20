@@ -16,9 +16,41 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "OFFGLASS DECANTS — Catálogo",
+  title: "OFFGLASS SENT — Catálogo",
   description:
     "Decants de perfumes de nicho, originais, em frascos de 2ml, 5ml e 10ml. Descubra sua próxima fragrância favorita.",
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/icon.png",
+  },
+  openGraph: {
+    title: "OFFGLASS SENT — Catálogo",
+    description:
+      "Decants de perfumes de nicho, originais, em frascos de 2ml, 5ml e 10ml. Descubra sua próxima fragrância favorita.",
+    siteName: "OFFGLASS SENT",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "OFFGLASS SENT",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OFFGLASS SENT — Catálogo",
+    description:
+      "Decants de perfumes de nicho, originais, em frascos de 2ml, 5ml e 10ml. Descubra sua próxima fragrância favorita.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

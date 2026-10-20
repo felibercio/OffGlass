@@ -32,21 +32,45 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
   const formData = await req.formData();
-  const file = formData.get("file");
-  if (!(file instanceof File)) {
+  // Aceita tanto "files" (múltiplo) quanto "file" (único)
+  const allEntries = [...formData.getAll("files"), ...formData.getAll("file")];
+  const files = allEntries.filter((item): item is File => item instanceof File);
+
+  if (files.length === 0) {
     return NextResponse.json({ error: "Nenhum arquivo enviado." }, { status: 400 });
   }
 
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-  const path = `${FOLDER}/${Date.now()}-${safeName}`;
-
   const supabase = createAdminClient();
-  const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-    contentType: file.type || "image/jpeg",
-    upsert: true,
-  });
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  const uploadedUrls: string[] = [];
 
-  const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-  return NextResponse.json({ url: pub.publicUrl });
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const uniqueSuffix = `${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`;
+    const path = `${FOLDER}/${uniqueSuffix}-${safeName}`;
+
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      contentType: file.type || "image/jpeg",
+      upsert: true,
+    });
+
+    if (error) {
+      console.error(`Erro ao subir ${file.name}:`, error.message);
+      continue;
+    }
+
+    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+    if (pub?.publicUrl) {
+      uploadedUrls.push(pub.publicUrl);
+    }
+  }
+
+  if (uploadedUrls.length === 0) {
+    return NextResponse.json({ error: "Falha ao enviar arquivo(s) para o storage." }, { status: 500 });
+  }
+
+  return NextResponse.json({
+    url: uploadedUrls[0],
+    urls: uploadedUrls,
+  });
 }

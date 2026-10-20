@@ -1,13 +1,17 @@
 import { Product, SizeMl } from "@/types";
 
 export function formatBRL(v: number): string {
-  return "R$ " + v.toFixed(0);
+  const num = typeof v === "number" && !isNaN(v) ? v : 0;
+  const parts = num.toFixed(2).split(".");
+  const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return `R$ ${intPart},${parts[1]}`;
 }
 
 export function precoComPromo(produto: Product, size: SizeMl): number {
-  const base = produto.precos[size];
+  const base = produto.precos[size] ?? 0;
   if (produto.promo?.ativo && produto.promo.desconto > 0) {
-    return Math.round(base * (1 - produto.promo.desconto / 100));
+    // Mantém precisão de 2 casas decimais (centavos reais)
+    return Math.round(base * (1 - produto.promo.desconto / 100) * 100) / 100;
   }
   return base;
 }

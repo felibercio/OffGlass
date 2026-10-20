@@ -4,6 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:clean": "rm -rf .next && next dev",
+    "dev:3001": "next dev -p 3001",
+    "dev:3002": "next dev -p 3002",
+    "dev:3005": "next dev -p 3005",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -25,5 +29,8 @@
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "lightningcss-darwin-arm64": "1.32.0"
   }
 }

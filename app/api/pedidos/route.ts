@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
     itens,
     forma_pagamento: formaPagamento,
     total,
+    status: "novo",
   });
 
   if (error) {

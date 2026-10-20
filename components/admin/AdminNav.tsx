@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const TABS = [
+  { href: "/admin", label: "Vendas", exact: true },
   { href: "/admin/produtos", label: "Produtos" },
   { href: "/admin/categorias", label: "Categorias" },
   { href: "/admin/acordes", label: "Acordes" },
@@ -29,30 +30,33 @@ export default function AdminNav() {
     <header className="sticky top-0 z-40 glass-strong">
       <div className="flex items-center justify-between px-4 py-3">
         <div>
-          <p className="text-[10px] tracking-label uppercase" style={{ color: "var(--gold-deep)" }}>
-            Offglass Decants
+          <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
+            Offglass Sent
           </p>
-          <h1 className="font-display text-xl">Painel administrativo</h1>
+          <h1 className="font-display text-xl font-semibold">Painel administrativo</h1>
         </div>
         <div className="flex gap-2">
-          <Link href="/" className="btn-glass rounded-full px-3 py-2 text-xs">
+          <Link href="/" className="btn-glass rounded-full px-3 py-2 text-xs font-medium">
             Ver catálogo
           </Link>
-          <button onClick={handleLogout} className="btn-glass rounded-full px-3 py-2 text-xs">
+          <button onClick={handleLogout} className="btn-glass rounded-full px-3 py-2 text-xs font-medium cursor-pointer">
             Sair
           </button>
         </div>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-3 px-4" style={{ scrollbarWidth: "none" }}>
-        {TABS.map((t) => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className={`chip ${pathname.startsWith(t.href) ? "active" : ""} rounded-full px-4 py-2 text-xs font-medium`}
-          >
-            {t.label}
-          </Link>
-        ))}
+        {TABS.map((t) => {
+          const isActive = t.exact ? pathname === t.href : pathname.startsWith(t.href);
+          return (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={`chip ${isActive ? "active" : ""} rounded-full px-4 py-2 text-xs font-medium`}
+            >
+              {t.label}
+            </Link>
+          );
+        })}
       </div>
     </header>
   );

@@ -19,10 +19,31 @@ export default function ProductModal({
   onAddToCart: (product: Product, size: SizeMl) => void;
 }) {
   const [size, setSize] = useState<SizeMl>(5);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+
   const price = precoComPromo(product, size);
   const basePrice = product.precos[size];
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
   const productAccords = accords.filter((a) => product.acordes.includes(a.key));
+
+  const gallery =
+    Array.isArray(product.imagens) && product.imagens.length > 0
+      ? product.imagens.filter(Boolean)
+      : product.imagem
+      ? [product.imagem]
+      : [];
+
+  const currentImage = gallery[activeImageIndex] || gallery[0] || "";
+
+  function nextImage() {
+    if (gallery.length <= 1) return;
+    setActiveImageIndex((prev) => (prev + 1) % gallery.length);
+  }
+
+  function prevImage() {
+    if (gallery.length <= 1) return;
+    setActiveImageIndex((prev) => (prev - 1 + gallery.length) % gallery.length);
+  }
 
   function handleConsultarFrascoOriginal() {
     const mensagem = `Olá! Gostaria de consultar a disponibilidade e o valor do frasco lacrado completo do perfume ${product.nome} da ${product.marca}.`;
@@ -37,7 +58,7 @@ export default function ProductModal({
           <div className="sticky top-0 flex justify-end p-3 z-10">
             <button
               onClick={onClose}
-              className="btn-glass rounded-full w-8 h-8 flex items-center justify-center"
+              className="btn-glass rounded-full w-8 h-8 flex items-center justify-center text-sm font-semibold"
               aria-label="Fechar"
             >
               ✕
@@ -45,26 +66,87 @@ export default function ProductModal({
           </div>
 
           <div className="px-6 pb-6 -mt-8">
-            <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden mb-4 flex items-center justify-center bg-white">
-              {product.imagem ? (
-                isOptimizableImageUrl(product.imagem) ? (
+            {/* Galeria de Fotos Interativa */}
+            <div className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden mb-3 flex items-center justify-center bg-white shadow-sm border border-black/5">
+              {currentImage ? (
+                isOptimizableImageUrl(currentImage) ? (
                   <Image
-                    src={product.imagem}
-                    alt={product.nome}
+                    src={currentImage}
+                    alt={`${product.nome} - Foto ${activeImageIndex + 1}`}
                     fill
                     sizes="(max-width: 768px) 100vw, 512px"
-                    className="object-contain"
+                    className="object-contain p-2 transition-all duration-300"
                   />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.imagem} alt={product.nome} className="w-full h-full object-contain" />
+                  <img
+                    src={currentImage}
+                    alt={`${product.nome} - Foto ${activeImageIndex + 1}`}
+                    className="w-full h-full object-contain p-2 transition-all duration-300"
+                  />
                 )
               ) : (
                 <p className="font-display text-2xl" style={{ color: "var(--ink-soft)" }}>
                   {product.nome}
                 </p>
               )}
+
+              {/* Controles de Navegação Anterior/Próxima */}
+              {gallery.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      prevImage();
+                    }}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-sm transition text-xs"
+                    aria-label="Foto anterior"
+                  >
+                    ◀
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      nextImage();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center backdrop-blur-sm transition text-xs"
+                    aria-label="Próxima foto"
+                  >
+                    ▶
+                  </button>
+                  <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-medium backdrop-blur-sm">
+                    {activeImageIndex + 1} / {gallery.length}
+                  </div>
+                </>
+              )}
             </div>
+
+            {/* Carrossel de Miniaturas */}
+            {gallery.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-3 mb-2" style={{ scrollbarWidth: "none" }}>
+                {gallery.map((img, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`relative w-14 h-14 rounded-lg overflow-hidden shrink-0 border-2 transition ${
+                      activeImageIndex === idx
+                        ? "border-[var(--teal)] scale-105 shadow"
+                        : "border-transparent opacity-65 hover:opacity-100"
+                    } bg-white`}
+                  >
+                    {isOptimizableImageUrl(img) ? (
+                      <Image src={img} alt="" fill sizes="56px" className="object-contain" />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={img} alt="" className="w-full h-full object-contain" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
 
             <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
               {product.marca}
@@ -139,7 +221,7 @@ export default function ProductModal({
                 {hasPromo && (
                   <span className="text-sm line-through opacity-50 mr-2">{formatBRL(basePrice)}</span>
                 )}
-                <span className="font-display text-2xl" style={{ color: "var(--teal-deep)" }}>
+                <span className="font-display text-2xl font-semibold" style={{ color: "var(--teal-deep)" }}>
                   {formatBRL(price)}
                 </span>
               </div>
@@ -147,7 +229,7 @@ export default function ProductModal({
 
             <button
               onClick={() => onAddToCart(product, size)}
-              className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide"
+              className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide shadow-md"
             >
               Adicionar ao carrinho
             </button>

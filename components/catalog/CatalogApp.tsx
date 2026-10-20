@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import { Accord, CartItem, Category, FormaPagamento, PedidoItem, Product, SizeMl } from "@/types";
 import ProductCard from "./ProductCard";
@@ -112,7 +113,7 @@ export default function CatalogApp({
   }
 
   function generalWhatsapp() {
-    const mensagem = "Olá! Vim pelo catálogo OFFGLASS DECANTS e gostaria de tirar uma dúvida.";
+    const mensagem = "Olá! Vim pelo catálogo OFFGLASS SENT e gostaria de tirar uma dúvida.";
     window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
   }
 
@@ -122,12 +123,17 @@ export default function CatalogApp({
     <>
       <header className="sticky top-0 z-40 glass-strong">
         <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex items-baseline gap-2">
-            <span className="font-display text-2xl font-semibold" style={{ letterSpacing: "0.02em" }}>
-              OFFGLASS
-            </span>
-            <span className="text-[10px] tracking-label uppercase" style={{ color: "var(--gold-deep)" }}>
-              Decants
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.png"
+              alt="OFFGLASS"
+              width={140}
+              height={26}
+              className="h-5 sm:h-6 w-auto object-contain mix-blend-multiply"
+              priority
+            />
+            <span className="text-[10px] tracking-label uppercase font-medium mt-0.5" style={{ color: "var(--gold-deep)" }}>
+              Sent
             </span>
           </div>
           <button onClick={() => setCartOpen(true)} className="relative btn-glass rounded-full p-2.5" aria-label="Carrinho">
