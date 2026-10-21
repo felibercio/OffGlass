@@ -64,9 +64,19 @@ export default function CartDrawer({
           <>
             <div className="overflow-y-auto px-5 flex-1 pb-3">
               {items.length === 0 ? (
-                <p className="text-sm py-8 text-center" style={{ color: "var(--ink-soft)" }}>
-                  Seu carrinho está vazio.
-                </p>
+                <div className="py-8 text-center">
+                  <p className="text-sm mb-3" style={{ color: "var(--ink-soft)" }}>
+                    Seu carrinho está vazio.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="btn-glass rounded-full px-4 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all cursor-pointer inline-flex items-center gap-1.5"
+                    style={{ color: "var(--ink)" }}
+                  >
+                    <span>← Continuar comprando</span>
+                  </button>
+                </div>
               ) : (
                 items.map((item, idx) => {
                   const p = products.find((x) => x.id === item.productId);
@@ -122,9 +132,17 @@ export default function CartDrawer({
                 </div>
                 <button
                   onClick={() => setStep("dados")}
-                  className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide"
+                  className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide cursor-pointer"
                 >
                   Continuar
+                </button>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full mt-2.5 py-1 text-center text-xs hover:underline transition-colors cursor-pointer"
+                  style={{ color: "var(--ink-soft)" }}
+                >
+                  Continuar comprando
                 </button>
               </div>
             )}
@@ -156,21 +174,29 @@ export default function CartDrawer({
               className="w-full rounded-lg px-3 py-2 mb-5 text-sm"
               placeholder="(45) 9XXXX-XXXX"
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-2">
               <button
                 onClick={() => setStep("carrinho")}
-                className="btn-glass rounded-full px-4 py-3 text-sm"
+                className="btn-glass rounded-full px-4 py-3 text-sm cursor-pointer"
               >
                 Voltar
               </button>
               <button
                 onClick={handleSubmit}
                 disabled={!nome.trim() || !telefone.trim() || sending}
-                className="btn-teal flex-1 rounded-full py-3 text-sm font-medium tracking-wide"
+                className="btn-teal flex-1 rounded-full py-3 text-sm font-medium tracking-wide cursor-pointer"
               >
                 {sending ? "Enviando..." : "Enviar pedido no WhatsApp"}
               </button>
             </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full text-center py-1 text-xs hover:underline transition-colors cursor-pointer"
+              style={{ color: "var(--ink-soft)" }}
+            >
+              Continuar comprando
+            </button>
           </div>
         )}
       </div>

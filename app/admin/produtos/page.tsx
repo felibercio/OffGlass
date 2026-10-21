@@ -55,9 +55,23 @@ export default async function AdminProdutosPage() {
                       <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
                         {p.marca} · {categoryLabel(p.categoria)}
                       </p>
-                      {photoCount > 1 && (
+                      {p.genero && (
                         <span className="text-[9px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-full font-medium">
-                          📷 {photoCount} fotos
+                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhado"}
+                        </span>
+                      )}
+                      {p.destaque && (
+                        <span className="text-[9px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-semibold">
+                          Destaque
+                        </span>
+                      )}
+                      {photoCount > 1 && (
+                        <span className="text-[9px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-full font-medium flex items-center gap-1">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+                            <circle cx="12" cy="13" r="3"/>
+                          </svg>
+                          <span>{photoCount} fotos</span>
                         </span>
                       )}
                     </div>

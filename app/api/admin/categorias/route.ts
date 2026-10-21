@@ -44,3 +44,26 @@ export async function DELETE(req: NextRequest) {
   revalidatePath("/");
   return NextResponse.json({ ok: true });
 }
+
+export async function PATCH(req: NextRequest) {
+  const user = await requireAdmin();
+  if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
+
+  const { key, label } = await req.json();
+  if (!key?.trim() || !label?.trim()) {
+    return NextResponse.json({ error: "key e label são obrigatórios." }, { status: 400 });
+  }
+
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("categorias")
+    .update({ label: label.trim() })
+    .eq("key", key);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  revalidatePath("/");
+  revalidatePath("/admin/categorias");
+  return NextResponse.json({ ok: true });
+}
+

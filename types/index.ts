@@ -11,6 +11,8 @@ export interface Promo {
   desconto: number; // percentual
 }
 
+export type Genero = "masculino" | "feminino" | "compartilhado";
+
 export interface Product {
   id: string;
   categoria: string;
@@ -24,6 +26,12 @@ export interface Product {
   notas: Notas;
   precos: Record<SizeMl, number>;
   promo: Promo;
+  genero?: Genero;
+  destaque?: boolean;
+  custoFrasco?: number;
+  volumeFrascoMl?: number;
+  margemLucroPct?: number;
+  criadoEm?: string;
 }
 
 export interface Category {
@@ -88,6 +96,12 @@ export interface ProdutoRow {
   preco_10: number;
   promo_ativo: boolean;
   promo_desconto: number;
+  genero?: Genero;
+  destaque?: boolean;
+  custo_frasco?: number;
+  volume_frasco_ml?: number;
+  margem_lucro_pct?: number;
+  criado_em?: string;
 }
 
 export interface PedidoRow {
@@ -146,6 +160,12 @@ export function fromProdutoRow(row: ProdutoRow): Product {
       ativo: !!row.promo_ativo,
       desconto: Number(row.promo_desconto) || 0,
     },
+    genero: row.genero || "compartilhado",
+    destaque: !!row.destaque,
+    custoFrasco: Number(row.custo_frasco) || 0,
+    volumeFrascoMl: Number(row.volume_frasco_ml) || 100,
+    margemLucroPct: Number(row.margem_lucro_pct) || 100,
+    criadoEm: row.criado_em || "",
   };
 }
 
@@ -172,5 +192,11 @@ export function toProdutoRow(p: Product): Omit<ProdutoRow, never> {
     preco_10: p.precos[10],
     promo_ativo: p.promo.ativo,
     promo_desconto: p.promo.desconto,
+    genero: p.genero || "compartilhado",
+    destaque: !!p.destaque,
+    custo_frasco: p.custoFrasco !== undefined ? Number(p.custoFrasco) : 0,
+    volume_frasco_ml: p.volumeFrascoMl !== undefined ? Number(p.volumeFrascoMl) : 100,
+    margem_lucro_pct: p.margemLucroPct !== undefined ? Number(p.margemLucroPct) : 100,
+    ...(p.criadoEm ? { criado_em: p.criadoEm } : {}),
   };
 }

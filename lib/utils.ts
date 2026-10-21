@@ -41,3 +41,52 @@ export function isOptimizableImageUrl(url: string): boolean {
   if (url.startsWith("/")) return true;
   return !!SUPABASE_STORAGE_PREFIX && url.startsWith(SUPABASE_STORAGE_PREFIX);
 }
+
+/**
+ * Converte valor numérico para exibição com máscara brasileira (ex: 550 -> "550,00")
+ */
+export function formatBRLValue(val: number | undefined | null): string {
+  if (val === undefined || val === null || isNaN(val) || val === 0) return "";
+  return val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/**
+ * Aplica máscara monetária ao digitar números (ex: "55000" -> "550,00", "125050" -> "1.250,50")
+ */
+export function maskBRLDigits(rawText: string): { formatted: string; numericValue: number } {
+  const digits = rawText.replace(/\D/g, "");
+  if (!digits) return { formatted: "", numericValue: 0 };
+  const num = parseInt(digits, 10) / 100;
+  const formatted = num.toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return { formatted, numericValue: num };
+}
+
+/**
+ * Converte texto com ponto e vírgula brasileiro (ex: "1.250,50") para número float (1250.50)
+ */
+export function parseBRLValue(text: string): number {
+  if (!text) return 0;
+  const cleaned = text.replace(/\./g, "").replace(",", ".");
+  const val = parseFloat(cleaned);
+  return isNaN(val) ? 0 : val;
+}
+
+/**
+ * Formata percentual permitindo vírgula ou ponto (ex: "120,5")
+ */
+export function maskPercentInput(rawText: string): { formatted: string; numericValue: number } {
+  let cleaned = rawText.replace(/[^0-9,\.]/g, "").replace(/\./g, ",");
+  const parts = cleaned.split(",");
+  if (parts.length > 2) {
+    cleaned = parts[0] + "," + parts.slice(1).join("");
+  }
+  const numericVal = parseFloat(cleaned.replace(",", "."));
+  return {
+    formatted: cleaned,
+    numericValue: isNaN(numericVal) ? 0 : numericVal,
+  };
+}
+

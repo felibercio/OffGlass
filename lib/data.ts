@@ -49,3 +49,30 @@ export async function getMensagemTemplate(chave: string, fallback: string): Prom
     .maybeSingle();
   return data?.template || fallback;
 }
+
+export async function getSalesCounts(): Promise<Record<string, number>> {
+  try {
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!serviceRoleKey) return {};
+    const { createAdminClient } = await import("@/lib/supabase/admin");
+    const supabase = createAdminClient();
+    const { data } = await supabase.from("pedidos").select("itens");
+    const counts: Record<string, number> = {};
+    if (data) {
+      for (const row of data) {
+        if (Array.isArray(row.itens)) {
+          for (const it of row.itens) {
+            const name = (it as { produto?: string; qtd?: number }).produto;
+            if (name) {
+              counts[name] = (counts[name] || 0) + ((it as { qtd?: number }).qtd || 1);
+            }
+          }
+        }
+      }
+    }
+    return counts;
+  } catch {
+    return {};
+  }
+}
+

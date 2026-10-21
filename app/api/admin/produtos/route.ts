@@ -8,12 +8,25 @@ export async function POST(req: NextRequest) {
   const user = await requireAdmin();
   if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
-  const product = (await req.json()) as Product;
+  const body = await req.json();
+  const product = body as Product;
+  const newCategoryLabel = body.newCategoryLabel as string | undefined;
+
   if (!product.marca?.trim() || !product.nome?.trim()) {
     return NextResponse.json({ error: "Marca e nome são obrigatórios." }, { status: 400 });
   }
 
   const supabase = createAdminClient();
+
+  // Se foi criada uma nova categoria via formulário, cadastra na tabela de categorias
+  if (newCategoryLabel && product.categoria) {
+    await supabase.from("categorias").upsert({
+      key: product.categoria,
+      label: newCategoryLabel.trim(),
+    }, { onConflict: "key" });
+    revalidatePath("/admin/categorias");
+  }
+
   const { error } = await supabase.from("produtos").upsert(toProdutoRow(product));
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 

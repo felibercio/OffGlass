@@ -4,7 +4,7 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 /**
  * Cliente Supabase com a chave de SERVIÇO (service role).
  *
- * ⚠️ NUNCA importe este arquivo em um Client Component ("use client") ou
+ * ATENÇÃO: NUNCA importe este arquivo em um Client Component ("use client") ou
  * em qualquer código que rode no navegador. O pacote "server-only" no
  * topo faz o build FALHAR de propósito se isso acontecer, como uma rede
  * de segurança extra.
