@@ -76,7 +76,7 @@ export default function CategorySection({
         {displayed.map((p, index) => (
           <div
             key={p.id}
-            className="w-[calc((100vw-44px)/2)] sm:w-[220px] md:w-[240px] lg:w-[250px] shrink-0 snap-start flex"
+            className="w-[160px] min-[370px]:w-[175px] min-[410px]:w-[190px] sm:w-[220px] md:w-[240px] lg:w-[250px] shrink-0 snap-start flex"
           >
             <ProductCard
               product={p}
@@ -88,7 +88,7 @@ export default function CategorySection({
 
         {/* Ao fim dos 12, se houver mais perfumes, apresentar card para ver todos da seção */}
         {hasMore && onViewMore && (
-          <div className="w-[calc((100vw-44px)/2)] sm:w-[220px] md:w-[240px] lg:w-[250px] shrink-0 snap-start flex">
+          <div className="w-[160px] min-[370px]:w-[175px] min-[410px]:w-[190px] sm:w-[220px] md:w-[240px] lg:w-[250px] shrink-0 snap-start flex">
             <button
               type="button"
               onClick={() => onViewMore(categoryKey)}

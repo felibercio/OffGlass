@@ -75,7 +75,7 @@ export default function SearchBar({
             setIsOpen(e.target.value.trim().length > 0);
           }}
           placeholder="Pesquise por nome, marca, nota olfativa ou acorde..."
-          className="w-full pl-10 pr-9 py-2.5 rounded-full text-xs sm:text-sm transition-all shadow-xs border border-black/10 bg-white/80 focus:bg-white focus:ring-2 focus:ring-[#3f6b62]/20 text-stone-900 placeholder:text-stone-400"
+          className="w-full pl-10 pr-9 py-2.5 rounded-full text-base sm:text-sm transition-all shadow-xs border border-black/10 bg-white/80 focus:bg-white focus:ring-2 focus:ring-[#3f6b62]/20 text-stone-900 placeholder:text-stone-400"
         />
 
         {/* Botão de Limpar Busca (X) */}

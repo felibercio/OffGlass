@@ -24,7 +24,9 @@ export function fillTemplate(template: string, vars: Record<string, string>): st
 }
 
 export function whatsappUrl(numero: string, mensagem: string): string {
-  return `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+  const digits = numero.replace(/\D/g, "");
+  const formattedNumber = digits.startsWith("55") ? digits : `55${digits}`;
+  return `https://wa.me/${formattedNumber}?text=${encodeURIComponent(mensagem.trim())}`;
 }
 
 const SUPABASE_STORAGE_PREFIX = process.env.NEXT_PUBLIC_SUPABASE_URL

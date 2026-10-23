@@ -47,7 +47,18 @@ export default function ProductModal({
 
   function handleConsultarFrascoOriginal() {
     const mensagem = `Olá! Gostaria de consultar a disponibilidade e o valor do frasco lacrado completo do perfume ${product.nome} da ${product.marca}.`;
-    window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
+    const waUrl = whatsappUrl(WHATSAPP_NUMBER, mensagem);
+    const isMobile =
+      typeof window !== "undefined" &&
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = waUrl;
+    } else {
+      const popup = window.open(waUrl, "_blank");
+      if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        window.location.href = waUrl;
+      }
+    }
   }
 
   return (

@@ -36,6 +36,10 @@
 
 html,
 body {
+  overflow-x: hidden;
+  max-width: 100%;
+  width: 100%;
+  -webkit-text-size-adjust: 100%;
   background: radial-gradient(1200px 600px at 10% -10%, rgba(207, 227, 221, 0.55), transparent 60%),
     radial-gradient(900px 500px at 100% 0%, rgba(199, 168, 118, 0.12), transparent 55%),
     linear-gradient(180deg, var(--cream) 0%, var(--cream-deep) 100%);
@@ -167,6 +171,19 @@ select,
 textarea {
   background: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(27, 31, 29, 0.15);
+}
+
+/* Previne zoom automático forçado do iOS Safari em inputs/selects (exige min 16px) */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="email"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 input:focus,
 select:focus,

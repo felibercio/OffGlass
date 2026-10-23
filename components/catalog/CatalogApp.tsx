@@ -294,7 +294,7 @@ export default function CatalogApp({
     setCart((prev) => prev.filter((_, i) => i !== index));
   }
 
-  async function handleCheckout(nome: string, telefone: string, pagamento: FormaPagamento) {
+  async function handleCheckout(nome: string, telefone: string, pagamento: FormaPagamento): Promise<string> {
     const itens: PedidoItem[] = cart.map((item) => {
       const p = products.find((x) => x.id === item.productId)!;
       return {
@@ -317,6 +317,7 @@ export default function CatalogApp({
           formaPagamento: pagamento,
           total,
         }),
+        keepalive: true,
       });
     } catch (e) {
       console.error("Não foi possível salvar o pedido:", e);
@@ -332,14 +333,42 @@ export default function CatalogApp({
       pagamento: pagamento === "pix" ? "Pix" : "Cartão",
     });
 
-    window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
+    const waUrl = whatsappUrl(WHATSAPP_NUMBER, mensagem);
+
+    // Esvazia carrinho local após pedido processado
     setCart([]);
-    setCartOpen(false);
+
+    // No mobile ou navegadores com bloqueador de pop-up ativo, window.location.href redireciona diretamente
+    const isMobile =
+      typeof window !== "undefined" &&
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      window.location.href = waUrl;
+    } else {
+      const popup = window.open(waUrl, "_blank");
+      if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        window.location.href = waUrl;
+      }
+    }
+
+    return waUrl;
   }
 
   function generalWhatsapp() {
     const mensagem = "Olá! Vim pelo catálogo OFFGLASS SCENT e gostaria de tirar uma dúvida.";
-    window.open(whatsappUrl(WHATSAPP_NUMBER, mensagem), "_blank");
+    const waUrl = whatsappUrl(WHATSAPP_NUMBER, mensagem);
+    const isMobile =
+      typeof window !== "undefined" &&
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = waUrl;
+    } else {
+      const popup = window.open(waUrl, "_blank");
+      if (!popup || popup.closed || typeof popup.closed === "undefined") {
+        window.location.href = waUrl;
+      }
+    }
   }
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
