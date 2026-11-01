@@ -118,6 +118,24 @@ export default function ProductForm({
   const [margemLucroInput, setMargemLucroInput] = useState(
     initialProduct.margemLucroPct ? String(initialProduct.margemLucroPct).replace(".", ",") : "100"
   );
+  const [margemLucroFrascoInput, setMargemLucroFrascoInput] = useState(() => {
+    if (initialProduct.precoFrascoLacrado && initialProduct.custoFrasco && initialProduct.custoFrasco > 0) {
+      const pct = Math.round(
+        ((initialProduct.precoFrascoLacrado - initialProduct.custoFrasco) / initialProduct.custoFrasco) * 100
+      );
+      if (pct > 0) return String(pct);
+    }
+    return "50";
+  });
+  const [margemLucroFrascoPct, setMargemLucroFrascoPct] = useState<number>(() => {
+    if (initialProduct.precoFrascoLacrado && initialProduct.custoFrasco && initialProduct.custoFrasco > 0) {
+      const pct = Math.round(
+        ((initialProduct.precoFrascoLacrado - initialProduct.custoFrasco) / initialProduct.custoFrasco) * 100
+      );
+      if (pct > 0) return pct;
+    }
+    return 50;
+  });
   const [precoFrascoLacradoInput, setPrecoFrascoLacradoInput] = useState(
     formatBRLValue(initialProduct.precoFrascoLacrado)
   );
@@ -306,6 +324,17 @@ export default function ProductForm({
       5: formatBRLValue(sugestao5),
       10: formatBRLValue(sugestao10),
     });
+  }
+
+  // Cálculos da Calculadora do Frasco Inteiro (Lacrado)
+  const custoAquisicao = form.custoFrasco || 0;
+  const margemFrascoMult = 1 + (margemLucroFrascoPct || 0) / 100;
+  const sugestaoFrascoLacrado = custoAquisicao > 0 ? Number((custoAquisicao * margemFrascoMult).toFixed(2)) : 0;
+  const lucroEstimadoFrasco = sugestaoFrascoLacrado > 0 ? Number((sugestaoFrascoLacrado - custoAquisicao).toFixed(2)) : 0;
+
+  function aplicarPrecoSugeridoFrasco() {
+    update("precoFrascoLacrado", sugestaoFrascoLacrado);
+    setPrecoFrascoLacradoInput(formatBRLValue(sugestaoFrascoLacrado));
   }
 
   async function handleSave() {
@@ -1236,32 +1265,188 @@ export default function ProductForm({
               </div>
             </div>
 
-            {/* SEÇÃO 1: PREÇO DO FRASCO LACRADO (se vendeLacrado ativo) */}
+            {/* SEÇÃO 1: CALCULADORA E PRECIFICAÇÃO DO FRASCO INTEIRO (se vendeLacrado ativo) */}
             {form.vendeLacrado && (
-              <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold uppercase tracking-label text-amber-900">
-                    Preço de Venda do Frasco Lacrado (R$)
-                  </label>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
-                    {form.volumeFrascoMl || 100}ml Original
-                  </span>
+              <div className="space-y-4 pt-1">
+                {/* Calculadora do Frasco Inteiro no mesmo padrão dos Decants */}
+                <div className="glass rounded-2xl p-4 border border-amber-500/30 bg-amber-500/5 space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-amber-500/15">
+                    <label className="text-xs font-semibold uppercase tracking-label text-amber-950 flex items-center gap-1.5">
+                      <span>📦</span> Calculadora do Frasco Inteiro & Markup
+                    </label>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                      {custoAquisicao > 0 ? `Custo: R$ ${formatBRLValue(custoAquisicao)}` : "Aguardando custos"}
+                    </span>
+                  </div>
+
+                  {/* Linha 1: Custo do Frasco e Volume (Grid 2 colunas amplo) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Custo de Aquisição */}
+                    <div>
+                      <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                        Custo do Frasco (R$)
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={custoFrascoInput}
+                        onChange={(e) => {
+                          const { formatted, numericValue } = maskBRLDigits(e.target.value);
+                          setCustoFrascoInput(formatted);
+                          update("custoFrasco", numericValue);
+                        }}
+                        placeholder="0,00"
+                        className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
+                      />
+                    </div>
+
+                    {/* Volume com atalhos em 4 colunas proporcionais */}
+                    <div>
+                      <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                        Volume do Frasco (ml)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={form.volumeFrascoMl || ""}
+                        onChange={(e) => update("volumeFrascoMl", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
+                        placeholder="Ex: 100"
+                        className="w-full rounded-lg px-3 py-2 text-sm font-medium border border-stone-300 bg-white"
+                      />
+                      <div className="grid grid-cols-4 gap-1 mt-1.5">
+                        {[50, 75, 100, 125].map((ml) => (
+                          <button
+                            key={ml}
+                            type="button"
+                            onClick={() => update("volumeFrascoMl", ml)}
+                            className={`text-[10px] py-1 rounded border transition cursor-pointer text-center font-medium ${
+                              form.volumeFrascoMl === ml
+                                ? "bg-stone-900 text-white border-transparent font-bold"
+                                : "bg-white/80 text-stone-600 border-black/10 hover:bg-white"
+                            }`}
+                          >
+                            {ml}ml
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Linha 2: Margem de Lucro Desejada do Frasco Inteiro (%) */}
+                  <div>
+                    <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                      Margem de Lucro Desejada do Frasco (%)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={margemLucroFrascoInput}
+                      onChange={(e) => {
+                        const { formatted, numericValue } = maskPercentInput(e.target.value);
+                        setMargemLucroFrascoInput(formatted);
+                        setMargemLucroFrascoPct(numericValue);
+                      }}
+                      placeholder="Ex: 50"
+                      className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
+                    />
+                    {/* Barra de atalhos comerciais para frasco lacrado */}
+                    <div className="grid grid-cols-4 gap-1.5 mt-1.5">
+                      {[30, 50, 70, 100].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => {
+                            setMargemLucroFrascoPct(pct);
+                            setMargemLucroFrascoInput(String(pct));
+                          }}
+                          className={`text-[11px] py-1 rounded border transition cursor-pointer text-center font-semibold ${
+                            margemLucroFrascoPct === pct
+                              ? "bg-amber-900 text-white border-transparent shadow-xs"
+                              : "bg-white/80 text-stone-700 border-black/10 hover:bg-white"
+                          }`}
+                        >
+                          +{pct}%
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quadro com valores sugeridos para o Frasco Inteiro */}
+                  <div className="bg-white/85 rounded-xl p-3 border border-black/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-stone-800">
+                        Simulação Financeira do Frasco:
+                      </span>
+                      <span className="text-[10px] text-stone-500 font-medium">
+                        {form.volumeFrascoMl || 100}ml original
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-2 rounded-lg bg-stone-50 border border-stone-200/70">
+                        <span className="block text-[10px] text-stone-500 font-medium">Custo Base</span>
+                        <span className="text-xs sm:text-sm font-bold text-stone-800 truncate block">
+                          {custoAquisicao > 0 ? `R$ ${formatBRLValue(custoAquisicao)}` : "--"}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-emerald-50/80 border border-emerald-200/60">
+                        <span className="block text-[10px] text-emerald-700 font-medium">Lucro Bruto</span>
+                        <span className="text-xs sm:text-sm font-bold text-emerald-800 truncate block">
+                          {lucroEstimadoFrasco > 0 ? `+ R$ ${formatBRLValue(lucroEstimadoFrasco)}` : "--"}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-amber-50/90 border border-amber-300/70">
+                        <span className="block text-[10px] text-amber-800 font-medium">Preço Sugerido</span>
+                        <span className="text-xs sm:text-sm font-bold text-amber-900 truncate block">
+                          {sugestaoFrascoLacrado > 0 ? `R$ ${formatBRLValue(sugestaoFrascoLacrado)}` : "--"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Botão Aplicar Preço Sugerido no Frasco Inteiro */}
+                  <button
+                    type="button"
+                    onClick={aplicarPrecoSugeridoFrasco}
+                    disabled={sugestaoFrascoLacrado <= 0}
+                    className="w-full py-2.5 px-3 rounded-xl text-xs font-semibold bg-amber-800 hover:bg-amber-900 text-white shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="4" y="2" width="16" height="20" rx="2" />
+                      <line x1="8" y1="6" x2="16" y2="6" />
+                      <line x1="16" y1="14" x2="16" y2="18" />
+                      <line x1="16" y1="10" x2="16" y2="10" />
+                      <line x1="12" y1="10" x2="12" y2="10" />
+                      <line x1="8" y1="10" x2="8" y2="10" />
+                      <line x1="12" y1="14" x2="12" y2="14" />
+                      <line x1="8" y1="14" x2="8" y2="14" />
+                      <line x1="12" y1="18" x2="12" y2="18" />
+                      <line x1="8" y1="18" x2="8" y2="18" />
+                    </svg>
+                    <span>Aplicar Preço Sugerido no Frasco Inteiro</span>
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  value={precoFrascoLacradoInput}
-                  onChange={(e) => {
-                    const { formatted, numericValue } = maskBRLDigits(e.target.value);
-                    setPrecoFrascoLacradoInput(formatted);
-                    update("precoFrascoLacrado", numericValue);
-                  }}
-                  placeholder="Ex: 890,00"
-                  className="w-full rounded-lg px-3 py-2 text-sm font-bold border border-amber-400/60 bg-white text-stone-900 focus:ring-1 focus:ring-amber-500"
-                />
-                <p className="text-[11px] text-stone-600">
-                  Preço final do frasco lacrado exibido no catálogo e no modal de compra.
-                </p>
+
+                {/* Preço Final do Frasco Lacrado */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-label text-amber-950">
+                    Preço Final do Frasco Lacrado (R$)
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={precoFrascoLacradoInput}
+                    onChange={(e) => {
+                      const { formatted, numericValue } = maskBRLDigits(e.target.value);
+                      setPrecoFrascoLacradoInput(formatted);
+                      update("precoFrascoLacrado", numericValue);
+                    }}
+                    placeholder="Ex: 890,00"
+                    className="w-full rounded-lg px-3 py-2 text-sm font-bold border border-stone-300 bg-white text-stone-900 focus:ring-1 focus:ring-amber-500"
+                  />
+                  <p className="text-[11px] text-stone-500 mt-1">
+                    Preço final de venda do frasco completo exibido aos clientes no catálogo e no carrinho.
+                  </p>
+                </div>
               </div>
             )}
 
