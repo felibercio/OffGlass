@@ -28,35 +28,37 @@ export default function AdminNav() {
 
   return (
     <header className="sticky top-0 z-40 glass-strong">
-      <div className="flex items-center justify-between px-4 py-3">
-        <div>
-          <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
-            Offglass Scent
-          </p>
-          <h1 className="font-display text-xl font-semibold">Painel administrativo</h1>
-        </div>
-        <div className="flex gap-2">
-          <Link href="/" className="btn-glass rounded-full px-3 py-2 text-xs font-medium">
-            Ver catálogo
-          </Link>
-          <button onClick={handleLogout} className="btn-glass rounded-full px-3 py-2 text-xs font-medium cursor-pointer">
-            Sair
-          </button>
-        </div>
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-3 px-4" style={{ scrollbarWidth: "none" }}>
-        {TABS.map((t) => {
-          const isActive = t.exact ? pathname === t.href : pathname.startsWith(t.href);
-          return (
-            <Link
-              key={t.href}
-              href={t.href}
-              className={`chip ${isActive ? "active" : ""} rounded-full px-4 py-2 text-xs font-medium`}
-            >
-              {t.label}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between py-3">
+          <div>
+            <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
+              Offglass Scent
+            </p>
+            <h1 className="font-display text-xl font-semibold">Painel administrativo</h1>
+          </div>
+          <div className="flex gap-2">
+            <Link href="/" className="btn-glass rounded-full px-3 py-2 text-xs font-medium">
+              Ver catálogo
             </Link>
-          );
-        })}
+            <button onClick={handleLogout} className="btn-glass rounded-full px-3 py-2 text-xs font-medium cursor-pointer">
+              Sair
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
+          {TABS.map((t) => {
+            const isActive = t.exact ? pathname === t.href : pathname.startsWith(t.href);
+            return (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={`chip ${isActive ? "active" : ""} rounded-full px-4 py-2 text-xs font-medium shrink-0`}
+              >
+                {t.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </header>
   );

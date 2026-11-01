@@ -374,15 +374,52 @@ export default function ProductForm({
   );
 
   return (
-    <div className="px-4 pb-32 pt-4 max-w-xl">
-      <h2 className="font-display text-xl mb-4">{isEditing ? "Editar perfume" : "Novo perfume"}</h2>
+    <div className="px-4 sm:px-6 lg:px-8 pb-32 pt-4 max-w-6xl mx-auto">
+      {/* Top Header com Ações Rápidas no Desktop */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-3 border-b border-black/5">
+        <div>
+          <h2 className="font-display text-2xl font-semibold">
+            {isEditing ? "Editar Perfume" : "Novo Perfume"}
+          </h2>
+          <p className="text-xs text-stone-500 mt-0.5">
+            {isEditing ? `Editando as informações de ${form.nome || "perfume"}` : "Cadastre uma nova fragrância no catálogo"}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.push("/admin/produtos")}
+            className="btn-glass rounded-full px-4 py-2 text-xs font-medium cursor-pointer"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-teal rounded-full px-5 py-2 text-xs font-semibold cursor-pointer disabled:opacity-50 shadow-xs"
+          >
+            {saving ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar perfume"}
+          </button>
+        </div>
+      </div>
+
       {error && (
-        <div className="text-xs mb-3 font-medium p-2.5 rounded-lg border border-red-200" style={{ background: "#FDE8E8", color: "#B0554B" }}>
+        <div className="text-xs mb-4 font-medium p-3 rounded-xl border border-red-200" style={{ background: "#FDE8E8", color: "#B0554B" }}>
           {error}
         </div>
       )}
 
-      {/* 1. SELEÇÃO DE CATEGORIA com Busca + Opção (Outro) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+        {/* Coluna Principal Esquerda (7 cols no desktop): Dados, Descrições, Acordes e Notas */}
+        <div className="lg:col-span-7 xl:col-span-7 space-y-6">
+          {/* Card 1: Identificação & Classificação */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
+              Identificação & Classificação
+            </h3>
+
+            {/* 1. SELEÇÃO DE CATEGORIA com Busca + Opção (Outro) */}
       <div className="mb-4 relative">
         <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
           Categoria
@@ -614,7 +651,7 @@ export default function ProductForm({
       </div>
 
       {/* 5. DESTAQUE NA HOME */}
-      <div className="mb-4 p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
+      <div className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
         <label className="flex items-center gap-2 text-xs font-semibold text-amber-900 cursor-pointer">
           <input
             type="checkbox"
@@ -630,204 +667,58 @@ export default function ProductForm({
           </span>
         )}
       </div>
+          </div>
 
-      {/* 6. GALERIA DE FOTOS E BOTÃO DE UPLOAD APARENTE */}
-      <div className="glass rounded-xl p-4 mb-4">
-        <div className="flex items-center justify-between mb-2">
-          <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-            Fotos do perfume ({gallery.length})
-          </label>
-          <span className="text-[11px] text-stone-500">
-            A 1ª foto é a capa principal
-          </span>
-        </div>
+          {/* Card 2: Textos de Apresentação */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
+              Textos de Apresentação
+            </h3>
 
-        {gallery.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
-            {gallery.map((url, idx) => (
-              <div
-                key={idx}
-                className={`relative rounded-xl border p-2 flex flex-col justify-between ${
-                  idx === 0
-                    ? "border-amber-500 bg-amber-50/30 ring-2 ring-amber-400/40"
-                    : "border-black/10 bg-white"
-                }`}
-              >
-                <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-white mb-2 flex items-center justify-center">
-                  {isOptimizableImageUrl(url) ? (
-                    <Image src={url} alt={`Foto ${idx + 1}`} fill sizes="160px" className="object-contain p-1" />
-                  ) : (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={url} alt={`Foto ${idx + 1}`} className="w-full h-full object-contain p-1" />
-                  )}
+            {/* 7. DESCRIÇÕES */}
+            <div>
+              <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
+                Descrição curta (vitrine)
+              </label>
+              <input
+                type="text"
+                value={form.descricaoCurta}
+                onChange={(e) => update("descricaoCurta", e.target.value)}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                placeholder="Fragrância oriental especiada com toque de mel e tabaco"
+              />
+            </div>
 
-                  {idx === 0 && (
-                    <span className="absolute top-1 left-1 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow">
-                      Capa
-                    </span>
-                  )}
-                </div>
+            <div>
+              <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
+                Descrição completa (modal de detalhes)
+              </label>
+              <textarea
+                value={form.descricaoCompleta}
+                onChange={(e) => update("descricaoCompleta", e.target.value)}
+                rows={4}
+                className="w-full rounded-lg px-3 py-2 text-sm"
+                placeholder="Descrição mais detalhada, estilo Fragrantica, escrita por você"
+              />
+            </div>
+          </div>
 
-                <div className="flex items-center justify-between gap-1 text-[10px]">
-                  {idx !== 0 ? (
-                    <button
-                      type="button"
-                      onClick={() => setAsCover(idx)}
-                      className="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer"
-                      title="Definir como capa principal"
-                    >
-                      Tornar capa
-                    </button>
-                  ) : (
-                    <span className="text-stone-400 font-medium px-1">Principal</span>
-                  )}
+          {/* Card 3: Perfil Olfativo & Pirâmide */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
+              Perfil Olfativo & Pirâmide
+            </h3>
 
-                  <div className="flex items-center gap-1">
-                    {idx > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => moveImage(idx, idx - 1)}
-                        className="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer flex items-center justify-center"
-                        title="Mover para esquerda"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                      </button>
-                    )}
-                    {idx < gallery.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={() => moveImage(idx, idx + 1)}
-                        className="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer flex items-center justify-center"
-                        title="Mover para direita"
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => removeImage(idx)}
-                      className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
-                      title="Remover foto"
-                    >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+            {/* 8. PRINCIPAIS ACORDES (ORGANIZADO COM PADRÃO COMBOBOX + TAGS SELECIONADAS) */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                  Principais Acordes Olfativos ({form.acordes.length})
+                </label>
+                <span className="text-[11px] text-stone-500">
+                  Texto sempre preto e tag colorida
+                </span>
               </div>
-            ))}
-          </div>
-        ) : null}
-
-        {/* DROPZONE E BOTÃO DE UPLOAD DESTACADO E APARENTE */}
-        <div className="p-5 rounded-2xl border-2 border-dashed border-teal-500/40 bg-teal-50/25 hover:bg-teal-50/50 transition-all text-center mb-3">
-          <input
-            id="product-photo-upload"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageFiles}
-            disabled={uploading}
-            className="hidden"
-          />
-          <label
-            htmlFor="product-photo-upload"
-            className="cursor-pointer flex flex-col items-center justify-center gap-2.5"
-          >
-            <div className="w-12 h-12 rounded-full bg-teal-100/90 flex items-center justify-center text-teal-800 shadow-xs">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-            </div>
-            <div>
-              <span className="btn-teal rounded-full px-5 py-2.5 text-xs font-semibold shadow-xs inline-block">
-                {uploading ? "Enviando foto(s)..." : "Selecionar Fotos do Computador / Celular"}
-              </span>
-              <p className="text-[11px] text-stone-500 mt-1.5">
-                Pode selecionar múltiplos arquivos (PNG, JPG, WEBP).
-              </p>
-            </div>
-          </label>
-        </div>
-
-        {/* Opções alternativas: URL e Biblioteca Storage */}
-        <div className="space-y-2 pt-2 border-t border-black/5">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={manualUrl}
-              onChange={(e) => setManualUrl(e.target.value)}
-              placeholder="Ou cole uma URL externa de imagem aqui"
-              className="flex-1 rounded-lg px-3 py-1.5 text-xs border border-stone-200"
-            />
-            <button
-              type="button"
-              onClick={handleAddManualUrl}
-              className="btn-glass rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer"
-            >
-              + Adicionar URL
-            </button>
-          </div>
-
-          {existingImages.length > 0 && (
-            <div>
-              <select
-                value=""
-                onChange={(e) => {
-                  const file = existingImages.find((f) => f.name === e.target.value);
-                  if (file) handleAddStorageFile(file.url);
-                }}
-                className="w-full rounded-lg px-3 py-1.5 text-xs border border-stone-200 bg-white"
-              >
-                <option value="">Ou vincule uma foto já presente no Storage...</option>
-                {existingImages.map((f) => (
-                  <option key={f.name} value={f.name}>
-                    {f.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* 7. DESCRIÇÕES */}
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Descrição curta (vitrine)
-      </label>
-      <input
-        type="text"
-        value={form.descricaoCurta}
-        onChange={(e) => update("descricaoCurta", e.target.value)}
-        className="w-full rounded-lg px-3 py-2 mb-3 text-sm"
-        placeholder="Fragrância oriental especiada com toque de mel e tabaco"
-      />
-
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Descrição completa (modal de detalhes)
-      </label>
-      <textarea
-        value={form.descricaoCompleta}
-        onChange={(e) => update("descricaoCompleta", e.target.value)}
-        rows={4}
-        className="w-full rounded-lg px-3 py-2 mb-4 text-sm"
-        placeholder="Descrição mais detalhada, estilo Fragrantica, escrita por você"
-      />
-
-      {/* 8. PRINCIPAIS ACORDES (ORGANIZADO COM PADRÃO COMBOBOX + TAGS SELECIONADAS) */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between mb-1.5">
-          <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-            Principais Acordes Olfativos ({form.acordes.length})
-          </label>
           <span className="text-[11px] text-stone-500">
             Texto sempre preto e tag colorida
           </span>
@@ -1000,8 +891,186 @@ export default function ProductForm({
         type="text"
         value={form.notas.fundo}
         onChange={(e) => update("notas", { ...form.notas, fundo: e.target.value })}
-        className="w-full rounded-lg px-3 py-2 mb-4 text-sm"
+        className="w-full rounded-lg px-3 py-2 text-sm"
       />
+          </div>
+        </div>
+
+        {/* Coluna Lateral Direita (5 cols no desktop): Mídia, Custos, Precificação e Ações */}
+        <div className="lg:col-span-5 xl:col-span-5 space-y-6">
+          {/* Card: Galeria de Fotos */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                Fotos do perfume ({gallery.length})
+              </label>
+              <span className="text-[11px] text-stone-500">
+                A 1ª foto é a capa principal
+              </span>
+            </div>
+
+            {gallery.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                {gallery.map((url, idx) => (
+                  <div
+                    key={idx}
+                    className={`relative rounded-xl border p-2 flex flex-col justify-between ${
+                      idx === 0
+                        ? "border-amber-500 bg-amber-50/30 ring-2 ring-amber-400/40"
+                        : "border-black/10 bg-white"
+                    }`}
+                  >
+                    <div className="relative w-full aspect-square rounded-lg overflow-hidden bg-white mb-2 flex items-center justify-center">
+                      {isOptimizableImageUrl(url) ? (
+                        <Image src={url} alt={`Foto ${idx + 1}`} fill sizes="160px" className="object-contain p-1" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={url} alt={`Foto ${idx + 1}`} className="w-full h-full object-contain p-1" />
+                      )}
+
+                      {idx === 0 && (
+                        <span className="absolute top-1 left-1 bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded shadow">
+                          Capa
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between gap-1 text-[10px]">
+                      {idx !== 0 ? (
+                        <button
+                          type="button"
+                          onClick={() => setAsCover(idx)}
+                          className="px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 transition cursor-pointer"
+                          title="Definir como capa principal"
+                        >
+                          Tornar capa
+                        </button>
+                      ) : (
+                        <span className="text-stone-400 font-medium px-1">Principal</span>
+                      )}
+
+                      <div className="flex items-center gap-1">
+                        {idx > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImage(idx, idx - 1)}
+                            className="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer flex items-center justify-center"
+                            title="Mover para esquerda"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="15 18 9 12 15 6" />
+                            </svg>
+                          </button>
+                        )}
+                        {idx < gallery.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveImage(idx, idx + 1)}
+                            className="p-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 cursor-pointer flex items-center justify-center"
+                            title="Mover para direita"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="p-1 rounded bg-red-50 text-red-600 hover:bg-red-100 cursor-pointer flex items-center justify-center"
+                          title="Remover foto"
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {/* DROPZONE E BOTÃO DE UPLOAD DESTACADO E APARENTE */}
+            <div className="p-5 rounded-2xl border-2 border-dashed border-teal-500/40 bg-teal-50/25 hover:bg-teal-50/50 transition-all text-center mb-3">
+              <input
+                id="product-photo-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageFiles}
+                disabled={uploading}
+                className="hidden"
+              />
+              <label
+                htmlFor="product-photo-upload"
+                className="cursor-pointer flex flex-col items-center justify-center gap-2.5"
+              >
+                <div className="w-12 h-12 rounded-full bg-teal-100/90 flex items-center justify-center text-teal-800 shadow-xs">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="btn-teal rounded-full px-5 py-2.5 text-xs font-semibold shadow-xs inline-block">
+                    {uploading ? "Enviando foto(s)..." : "Selecionar Fotos do Computador / Celular"}
+                  </span>
+                  <p className="text-[11px] text-stone-500 mt-1.5">
+                    Pode selecionar múltiplos arquivos (PNG, JPG, WEBP).
+                  </p>
+                </div>
+              </label>
+            </div>
+
+            {/* Opções alternativas: URL e Biblioteca Storage */}
+            <div className="space-y-2 pt-2 border-t border-black/5">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={manualUrl}
+                  onChange={(e) => setManualUrl(e.target.value)}
+                  placeholder="Ou cole uma URL externa de imagem aqui"
+                  className="flex-1 rounded-lg px-3 py-1.5 text-xs border border-stone-200"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddManualUrl}
+                  className="btn-glass rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer"
+                >
+                  + Adicionar URL
+                </button>
+              </div>
+
+              {existingImages.length > 0 && (
+                <div>
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      const file = existingImages.find((f) => f.name === e.target.value);
+                      if (file) handleAddStorageFile(file.url);
+                    }}
+                    className="w-full rounded-lg px-3 py-1.5 text-xs border border-stone-200 bg-white"
+                  >
+                    <option value="">Ou vincule uma foto já presente no Storage...</option>
+                    {existingImages.map((f) => (
+                      <option key={f.name} value={f.name}>
+                        {f.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Card: Calculadora e Preços dos Decants */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
+              Precificação & Decants
+            </h3>
 
       {/* 10. CALCULADORA FINANCEIRA COM MÁSCARA PONTO E VÍRGULA */}
       <div className="glass rounded-2xl p-4 mb-4 border border-teal-500/30 bg-teal-500/5">
@@ -1177,44 +1246,59 @@ export default function ProductForm({
         ))}
       </div>
 
-      {/* 12. PROMOÇÃO */}
-      <div className="glass rounded-xl p-3 mb-4">
-        <label className="flex items-center gap-2 text-sm mb-2 font-medium cursor-pointer">
+        {/* 12. PROMOÇÃO */}
+        <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs">
+          <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 mb-3 text-stone-900">
+            Campanha Promocional
+          </h3>
+          <label className="flex items-center gap-2 text-sm mb-2 font-medium cursor-pointer">
+            <input
+              type="checkbox"
+              checked={form.promo.ativo}
+              onChange={(e) => update("promo", { ...form.promo, ativo: e.target.checked })}
+              className="w-4 h-4 rounded text-teal-700 cursor-pointer"
+            />
+            <span>Ativar desconto promocional neste produto</span>
+          </label>
+          <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
+            Desconto (%)
+          </label>
           <input
-            type="checkbox"
-            checked={form.promo.ativo}
-            onChange={(e) => update("promo", { ...form.promo, ativo: e.target.checked })}
+            type="number"
+            step="0.1"
+            min="0"
+            max="100"
+            value={form.promo.desconto || ""}
+            onChange={(e) =>
+              update("promo", {
+                ...form.promo,
+                desconto: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
+              })
+            }
+            className="w-full rounded-lg px-3 py-2 text-sm border border-stone-300 bg-white"
+            placeholder="Ex: 10"
           />
-          Produto em promoção
-        </label>
-        <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-          Desconto (%)
-        </label>
-        <input
-          type="number"
-          step="0.1"
-          min="0"
-          max="100"
-          value={form.promo.desconto || ""}
-          onChange={(e) =>
-            update("promo", {
-              ...form.promo,
-              desconto: e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
-            })
-          }
-          className="w-full rounded-lg px-3 py-2 text-sm border border-stone-300 bg-white"
-          placeholder="Ex: 10"
-        />
-      </div>
+        </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-teal flex-1 rounded-full py-3 text-sm font-medium cursor-pointer disabled:opacity-50"
-        >
-          {saving ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar perfume"}
-        </button>
+        {/* Card: Ações Fixas no Desktop */}
+        <div className="glass-strong rounded-2xl p-4 sm:p-5 border border-white/70 shadow-sm lg:sticky lg:top-24 space-y-2.5">
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-teal w-full rounded-full py-3.5 text-sm font-semibold cursor-pointer disabled:opacity-50 shadow-md flex items-center justify-center gap-2"
+          >
+            <span>{saving ? "Salvando..." : isEditing ? "Salvar alterações" : "Cadastrar perfume"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/admin/produtos")}
+            className="w-full text-center py-2 text-xs text-stone-600 hover:text-stone-900 font-medium cursor-pointer"
+          >
+            Cancelar e voltar para a lista
+          </button>
+        </div>
+      </div>
       </div>
     </div>
   );

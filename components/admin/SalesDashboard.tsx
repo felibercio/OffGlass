@@ -210,7 +210,7 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
   }
 
   return (
-    <div className="px-4 pb-32 pt-4 max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 pt-4 space-y-6">
       {/* Cabeçalho e Filtro de Período */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
