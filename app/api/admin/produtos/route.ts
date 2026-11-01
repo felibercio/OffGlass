@@ -27,7 +27,30 @@ export async function POST(req: NextRequest) {
     revalidatePath("/admin/categorias");
   }
 
-  const { error } = await supabase.from("produtos").upsert(toProdutoRow(product));
+  const row = toProdutoRow(product);
+  let { error } = await supabase.from("produtos").upsert(row);
+
+  // Se o Supabase reclamar que colunas recentes não existem no schema cache (banco ainda sem migração 05)
+  if (error && error.message && error.message.includes("Could not find the") && error.message.includes("column")) {
+    console.warn("Colunas recentes não encontradas na tabela produtos. Tentando salvamento retrocompatível:", error.message);
+
+    // Se for exclusivamente frasco lacrado, salva na categoria 'lacrados' para manter compatibilidade no catálogo legado
+    const fallbackCategoria =
+      product.vendeLacrado && !product.vendeDecant
+        ? "lacrados"
+        : row.categoria;
+
+    // Remove as colunas novas não reconhecidas pelo banco
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { preco_frasco_lacrado, vende_decant, vende_lacrado, ...legacyRow } = row;
+
+    const retry = await supabase.from("produtos").upsert({
+      ...legacyRow,
+      categoria: fallbackCategoria,
+    });
+    error = retry.error;
+  }
+
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
   revalidatePath("/");

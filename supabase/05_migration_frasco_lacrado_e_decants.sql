@@ -11,3 +11,6 @@ alter table produtos add column if not exists vende_lacrado boolean default fals
 
 -- Atualiza perfumes que estão na categoria 'lacrados' para vende_lacrado = true
 update produtos set vende_lacrado = true where categoria = 'lacrados';
+
+-- Recarrega o Schema Cache do PostgREST imediatamente para o Supabase reconhecer as novas colunas
+NOTIFY pgrst, 'reload schema';

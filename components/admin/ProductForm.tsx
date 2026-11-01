@@ -345,14 +345,28 @@ export default function ProductForm({
       return;
     }
 
-    if (!form.vendeLacrado && form.vendeDecant === false) {
+    const vendeDecantsAtivo = form.vendeDecant !== false;
+    const vendeLacradoAtivo = !!form.vendeLacrado;
+
+    if (!vendeLacradoAtivo && !vendeDecantsAtivo) {
       setError("Selecione pelo menos uma modalidade de venda: Frasco Lacrado ou Decants.");
       return;
     }
 
-    if (form.vendeLacrado && (!form.precoFrascoLacrado || form.precoFrascoLacrado <= 0)) {
+    if (vendeLacradoAtivo && (!form.precoFrascoLacrado || form.precoFrascoLacrado <= 0)) {
       setError("Informe o preço de venda do frasco lacrado.");
       return;
+    }
+
+    if (vendeDecantsAtivo) {
+      const temPrecoDecant =
+        (form.precos[2] && form.precos[2] > 0) ||
+        (form.precos[5] && form.precos[5] > 0) ||
+        (form.precos[10] && form.precos[10] > 0);
+      if (!temPrecoDecant) {
+        setError("Informe o preço de ao menos um decant (2ml, 5ml ou 10ml).");
+        return;
+      }
     }
 
     let finalCategory = form.categoria;

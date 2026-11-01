@@ -172,7 +172,7 @@ export function fromProdutoRow(row: ProdutoRow): Product {
     custoFrasco: Number(row.custo_frasco) || 0,
     volumeFrascoMl: Number(row.volume_frasco_ml) || 100,
     margemLucroPct: Number(row.margem_lucro_pct) || 100,
-    vendeDecant: row.vende_decant !== undefined ? !!row.vende_decant : true,
+    vendeDecant: row.vende_decant !== undefined ? !!row.vende_decant : (row.categoria !== "lacrados"),
     vendeLacrado: row.vende_lacrado !== undefined ? !!row.vende_lacrado : (Number(row.preco_frasco_lacrado) > 0 || row.categoria === "lacrados"),
     precoFrascoLacrado: Number(row.preco_frasco_lacrado) || 0,
     criadoEm: row.criado_em || "",
