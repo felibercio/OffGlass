@@ -89,26 +89,33 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
     let ml2 = 0;
     let ml5 = 0;
     let ml10 = 0;
+    let lacrado = 0;
 
     validos.forEach((p) => {
       p.itens?.forEach((it) => {
-        const sz = Number(it.tamanho);
         const q = Number(it.qtd) || 1;
-        if (sz === 2) ml2 += q;
-        else if (sz === 5) ml5 += q;
-        else if (sz === 10) ml10 += q;
+        if (it.tamanho === "lacrado") {
+          lacrado += q;
+        } else {
+          const sz = Number(it.tamanho);
+          if (sz === 2) ml2 += q;
+          else if (sz === 5) ml5 += q;
+          else if (sz === 10) ml10 += q;
+        }
       });
     });
 
-    const total = ml2 + ml5 + ml10;
+    const total = ml2 + ml5 + ml10 + lacrado;
     return {
       ml2,
       ml5,
       ml10,
+      lacrado,
       total,
       pct2: total > 0 ? Math.round((ml2 / total) * 100) : 0,
       pct5: total > 0 ? Math.round((ml5 / total) * 100) : 0,
       pct10: total > 0 ? Math.round((ml10 / total) * 100) : 0,
+      pctLacrado: total > 0 ? Math.round((lacrado / total) * 100) : 0,
     };
   }, [pedidosNoPeriodo]);
 
@@ -373,7 +380,7 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
           {/* Card Volumetria de Frascos */}
           <div className="glass rounded-2xl p-4 shadow-sm border border-white/60">
             <h4 className="font-display text-sm font-semibold mb-2">Tamanhos mais Vendidos</h4>
-            <div className="grid grid-cols-3 gap-2 text-center pt-1">
+            <div className={`grid ${volumeStats.lacrado > 0 ? "grid-cols-4" : "grid-cols-3"} gap-2 text-center pt-1`}>
               <div className="bg-white/60 p-2 rounded-xl border border-black/5">
                 <span className="text-[10px] text-stone-500 font-medium block">2ml</span>
                 <span className="font-display text-base font-bold text-stone-800">{volumeStats.ml2}</span>
@@ -389,6 +396,13 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
                 <span className="font-display text-base font-bold text-stone-800">{volumeStats.ml10}</span>
                 <span className="text-[9px] text-stone-400 block">{volumeStats.pct10}%</span>
               </div>
+              {volumeStats.lacrado > 0 && (
+                <div className="bg-teal-50/70 p-2 rounded-xl border border-teal-200/60">
+                  <span className="text-[10px] text-teal-800 font-medium block truncate">Lacrado</span>
+                  <span className="font-display text-base font-bold text-teal-900">{volumeStats.lacrado}</span>
+                  <span className="text-[9px] text-teal-600 block">{volumeStats.pctLacrado}%</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -410,7 +424,7 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
                   </p>
                 </div>
                 <div className="mt-2 pt-2 border-t border-black/5 flex items-center justify-between text-xs">
-                  <span className="text-stone-500">{p.qtd} decants</span>
+                  <span className="text-stone-500">{p.qtd} {p.qtd === 1 ? "unidade" : "unidades"}</span>
                   <span className="font-semibold text-teal-800">{formatBRL(p.receita)}</span>
                 </div>
               </div>
@@ -518,7 +532,7 @@ export default function SalesDashboard({ initialPedidos }: { initialPedidos: Ped
                       {p.itens?.map((it, idx) => (
                         <li key={idx} className="flex items-center justify-between">
                           <span>
-                            {it.qtd}x <span className="font-medium text-stone-900">{it.produto}</span> ({it.tamanho}ml)
+                            {it.qtd}x <span className="font-medium text-stone-900">{it.produto}</span> ({it.tamanho === "lacrado" ? "Frasco Lacrado" : `${it.tamanho}ml`})
                           </span>
                           <span className="text-stone-500 font-mono">
                             {formatBRL(Number(it.precoUnit) * Number(it.qtd))}

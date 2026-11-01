@@ -102,7 +102,7 @@ export default function CartDrawer({
                       <div className="min-w-0 pr-2">
                         <p className="text-sm font-medium truncate">{p.nome}</p>
                         <p className="text-xs" style={{ color: "var(--ink-soft)" }}>
-                          {item.size}ml · {formatBRL(price)} un.
+                          {item.size === "lacrado" ? "Frasco Lacrado" : `${item.size}ml`} · {formatBRL(price)} un.
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">

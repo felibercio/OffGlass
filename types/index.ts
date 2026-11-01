@@ -1,4 +1,5 @@
 export type SizeMl = 2 | 5 | 10;
+export type CartSize = SizeMl | "lacrado";
 
 export interface Notas {
   topo: string;
@@ -31,6 +32,9 @@ export interface Product {
   custoFrasco?: number;
   volumeFrascoMl?: number;
   margemLucroPct?: number;
+  vendeDecant?: boolean;
+  vendeLacrado?: boolean;
+  precoFrascoLacrado?: number;
   criadoEm?: string;
 }
 
@@ -50,13 +54,13 @@ export type PedidoStatus = "novo" | "preparo" | "enviado" | "concluido" | "cance
 
 export interface CartItem {
   productId: string;
-  size: SizeMl;
+  size: CartSize;
   qty: number;
 }
 
 export interface PedidoItem {
   produto: string;
-  tamanho: SizeMl;
+  tamanho: CartSize | string;
   qtd: number;
   precoUnit: number;
 }
@@ -101,6 +105,9 @@ export interface ProdutoRow {
   custo_frasco?: number;
   volume_frasco_ml?: number;
   margem_lucro_pct?: number;
+  vende_decant?: boolean;
+  vende_lacrado?: boolean;
+  preco_frasco_lacrado?: number;
   criado_em?: string;
 }
 
@@ -152,9 +159,9 @@ export function fromProdutoRow(row: ProdutoRow): Product {
       fundo: row.notas_fundo || "",
     },
     precos: {
-      2: Number(row.preco_2),
-      5: Number(row.preco_5),
-      10: Number(row.preco_10),
+      2: Number(row.preco_2) || 0,
+      5: Number(row.preco_5) || 0,
+      10: Number(row.preco_10) || 0,
     },
     promo: {
       ativo: !!row.promo_ativo,
@@ -165,6 +172,9 @@ export function fromProdutoRow(row: ProdutoRow): Product {
     custoFrasco: Number(row.custo_frasco) || 0,
     volumeFrascoMl: Number(row.volume_frasco_ml) || 100,
     margemLucroPct: Number(row.margem_lucro_pct) || 100,
+    vendeDecant: row.vende_decant !== undefined ? !!row.vende_decant : true,
+    vendeLacrado: row.vende_lacrado !== undefined ? !!row.vende_lacrado : (Number(row.preco_frasco_lacrado) > 0 || row.categoria === "lacrados"),
+    precoFrascoLacrado: Number(row.preco_frasco_lacrado) || 0,
     criadoEm: row.criado_em || "",
   };
 }
@@ -187,9 +197,9 @@ export function toProdutoRow(p: Product): Omit<ProdutoRow, never> {
     notas_topo: p.notas.topo,
     notas_coracao: p.notas.coracao,
     notas_fundo: p.notas.fundo,
-    preco_2: p.precos[2],
-    preco_5: p.precos[5],
-    preco_10: p.precos[10],
+    preco_2: p.precos[2] || 0,
+    preco_5: p.precos[5] || 0,
+    preco_10: p.precos[10] || 0,
     promo_ativo: p.promo.ativo,
     promo_desconto: p.promo.desconto,
     genero: p.genero || "compartilhado",
@@ -197,6 +207,9 @@ export function toProdutoRow(p: Product): Omit<ProdutoRow, never> {
     custo_frasco: p.custoFrasco !== undefined ? Number(p.custoFrasco) : 0,
     volume_frasco_ml: p.volumeFrascoMl !== undefined ? Number(p.volumeFrascoMl) : 100,
     margem_lucro_pct: p.margemLucroPct !== undefined ? Number(p.margemLucroPct) : 100,
+    vende_decant: p.vendeDecant !== false,
+    vende_lacrado: !!p.vendeLacrado,
+    preco_frasco_lacrado: p.precoFrascoLacrado !== undefined ? Number(p.precoFrascoLacrado) : 0,
     ...(p.criadoEm ? { criado_em: p.criadoEm } : {}),
   };
 }

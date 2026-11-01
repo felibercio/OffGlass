@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Product } from "@/types";
-import { isOptimizableImageUrl } from "@/lib/utils";
+import { formatBRL, isOptimizableImageUrl, precoComPromo } from "@/lib/utils";
 
 function BottleFallback({ seed }: { seed: string }) {
   const colors = ["#6E9C93", "#A9895C", "#8C6E63", "#6C7A89", "#B08968", "#5E7C74"];
@@ -35,7 +35,9 @@ export default function ProductCard({
   priority?: boolean;
 }) {
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
-  const isLacrado = product.categoria === "lacrados";
+  const isSomenteLacrado = product.vendeLacrado && !product.vendeDecant;
+  const isHibrido = product.vendeLacrado && product.vendeDecant;
+  const isLacradoLegado = product.categoria === "lacrados" && !product.vendeDecant;
   const coverImage = product.imagens?.[0] || product.imagem;
   const photoCount = product.imagens?.length || (product.imagem ? 1 : 0);
 
@@ -51,9 +53,14 @@ export default function ProductCard({
             -{product.promo.desconto}%
           </span>
         )}
-        {isLacrado && (
+        {(isSomenteLacrado || isLacradoLegado) && (
           <span className="bg-teal-700 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
-            Lacrado
+            Frasco Lacrado
+          </span>
+        )}
+        {isHibrido && (
+          <span className="bg-stone-800 text-white text-[9px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider shadow">
+            Decants + Frasco
           </span>
         )}
       </div>
@@ -107,15 +114,51 @@ export default function ProductCard({
       )}
 
       {/* Rodapé do Card */}
-      {isLacrado ? (
-        <div
-          className="mt-auto pt-3 border-t border-black/5 flex items-center justify-between text-xs font-semibold w-full"
-          style={{ color: "var(--teal-deep)" }}
-        >
-          <span>Consultar Frasco</span>
-          <span className="text-[11px] underline">WhatsApp →</span>
+      {isSomenteLacrado || isLacradoLegado ? (
+        <div className="mt-auto pt-3 border-t border-black/5 flex items-center justify-between text-xs w-full">
+          {product.precoFrascoLacrado && product.precoFrascoLacrado > 0 ? (
+            <div className="flex flex-col">
+              <span className="text-[10px] text-stone-500 font-medium">Frasco Lacrado</span>
+              <div className="flex items-center gap-1.5">
+                {hasPromo && (
+                  <span className="text-[11px] line-through text-stone-400 font-normal">
+                    {formatBRL(product.precoFrascoLacrado)}
+                  </span>
+                )}
+                <span className="text-xs sm:text-sm font-bold text-stone-900">
+                  {formatBRL(precoComPromo(product, "lacrado"))}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between w-full font-semibold" style={{ color: "var(--teal-deep)" }}>
+              <span>Consultar Frasco</span>
+              <span className="text-[11px] underline">WhatsApp →</span>
+            </div>
+          )}
         </div>
-      ) : null}
+      ) : (
+        <div className="mt-auto pt-3 border-t border-black/5 flex items-center justify-between text-xs w-full">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-stone-400">Decants a partir de</span>
+            <div className="flex items-center gap-1.5">
+              {hasPromo && (
+                <span className="text-[11px] line-through text-stone-400 font-normal">
+                  {formatBRL(product.precos[2])}
+                </span>
+              )}
+              <span className="text-xs sm:text-sm font-bold text-stone-900">
+                {formatBRL(precoComPromo(product, 2))}
+              </span>
+            </div>
+          </div>
+          {isHibrido && (
+            <span className="text-[9px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+              + Opção Lacrado
+            </span>
+          )}
+        </div>
+      )}
     </button>
   );
 }

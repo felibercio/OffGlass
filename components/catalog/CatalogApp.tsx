@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import {
   Accord,
   CartItem,
+  CartSize,
   Category,
   FormaPagamento,
   PedidoItem,
@@ -244,7 +245,7 @@ export default function CatalogApp({
     const arabe = products.filter((p) => p.categoria === "arabe" || p.categoria === "arabes");
     const designer = products.filter((p) => p.categoria === "designer" || p.categoria === "designers");
     const autoral = products.filter((p) => p.categoria === "autoral");
-    const lacrados = products.filter((p) => p.categoria === "lacrados");
+    const lacrados = products.filter((p) => p.categoria === "lacrados" || (p.vendeLacrado && !p.vendeDecant));
 
     // Outras categorias personalizadas cadastradas pelo lojista
     const officialKeys = ["nicho", "arabe", "arabes", "designer", "designers", "autoral", "lacrados"];
@@ -270,7 +271,7 @@ export default function CatalogApp({
     };
   }, [products, categories, isFilteredView]);
 
-  function addToCart(product: Product, size: SizeMl) {
+  function addToCart(product: Product, size: CartSize) {
     setCart((prev) => {
       const existing = prev.find((i) => i.productId === product.id && i.size === size);
       if (existing) {
@@ -324,7 +325,10 @@ export default function CatalogApp({
     }
 
     const itensTexto = itens
-      .map((i) => `${i.qtd}x ${i.produto} (${i.tamanho}ml) - ${formatBRL(i.precoUnit * i.qtd)}`)
+      .map((i) => {
+        const labelTam = i.tamanho === "lacrado" ? "Frasco Lacrado" : `${i.tamanho}ml`;
+        return `${i.qtd}x ${i.produto} (${labelTam}) - ${formatBRL(i.precoUnit * i.qtd)}`;
+      })
       .join(", ");
     const mensagem = fillTemplate(mensagemPedidoTemplate || DEFAULT_TEMPLATE_PEDIDO, {
       nome,

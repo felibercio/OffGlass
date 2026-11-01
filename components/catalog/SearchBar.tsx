@@ -108,7 +108,9 @@ export default function SearchBar({
             <div className="space-y-1">
               {matchingProducts.map((p) => {
                 const cover = p.imagens?.[0] || p.imagem;
-                const isLacrado = p.categoria === "lacrados";
+                const isSomenteLacrado = p.vendeLacrado && !p.vendeDecant;
+                const isLacradoLegado = p.categoria === "lacrados" && !p.vendeDecant;
+                const isHibrido = p.vendeLacrado && p.vendeDecant;
                 const precoMin = precoComPromo(p, 2);
 
                 return (
@@ -159,16 +161,28 @@ export default function SearchBar({
 
                     {/* Preço ou Selo Frasco Lacrado */}
                     <div className="shrink-0 text-right">
-                      {isLacrado ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                          Lacrado
-                        </span>
+                      {isSomenteLacrado || isLacradoLegado ? (
+                        p.precoFrascoLacrado && p.precoFrascoLacrado > 0 ? (
+                          <div>
+                            <span className="text-[9px] block text-stone-400">Frasco Lacrado</span>
+                            <span className="text-xs font-bold text-stone-900">
+                              {formatBRL(precoComPromo(p, "lacrado"))}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                            Lacrado
+                          </span>
+                        )
                       ) : (
                         <div>
                           <span className="text-[9px] block text-stone-400">A partir de</span>
                           <span className="text-xs font-bold text-stone-900">
                             {formatBRL(precoMin)}
                           </span>
+                          {isHibrido && (
+                            <span className="block text-[8px] text-teal-800 font-semibold">+ Lacrado</span>
+                          )}
                         </div>
                       )}
                     </div>

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { Accord, Product, SizeMl } from "@/types";
+import { Accord, CartSize, Product, SizeMl } from "@/types";
 import { formatBRL, isOptimizableImageUrl, precoComPromo, whatsappUrl } from "@/lib/utils";
 
 const WHATSAPP_NUMBER = "5545999736188";
@@ -16,13 +16,20 @@ export default function ProductModal({
   product: Product;
   accords: Accord[];
   onClose: () => void;
-  onAddToCart: (product: Product, size: SizeMl) => void;
+  onAddToCart: (product: Product, size: CartSize) => void;
 }) {
-  const [size, setSize] = useState<SizeMl>(5);
+  const isSomenteLacrado = product.vendeLacrado && !product.vendeDecant;
+  const isHibrido = product.vendeLacrado && product.vendeDecant;
+  const isLacradoLegado = product.categoria === "lacrados" && !product.vendeDecant;
+  const permiteLacrado = Boolean(product.vendeLacrado || isLacradoLegado);
+
+  const initialSize: CartSize = isSomenteLacrado || isLacradoLegado ? "lacrado" : 5;
+  const [size, setSize] = useState<CartSize>(initialSize);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const price = precoComPromo(product, size);
-  const basePrice = product.precos[size];
+  const basePrice =
+    size === "lacrado" ? (product.precoFrascoLacrado || 0) : product.precos[size as SizeMl];
   const hasPromo = product.promo?.ativo && product.promo.desconto > 0;
   const productAccords = accords.filter((a) => product.acordes.includes(a.key));
 
@@ -216,72 +223,159 @@ export default function ProductModal({
 
             <div className="divider-fade my-4" />
 
-            {product.categoria === "lacrados" ? (
+            {/* Cenário 1: Venda exclusivamente de Frasco Lacrado */}
+            {isSomenteLacrado || isLacradoLegado ? (
               <div className="space-y-4">
                 <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/25">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-label text-teal-800">
-                      Frasco Original Lacrado
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs font-semibold uppercase tracking-label text-teal-800 flex items-center gap-1.5">
+                      <span>📦</span> Frasco Original Lacrado
                     </span>
+                    {product.volumeFrascoMl && (
+                      <span className="text-[11px] font-bold text-teal-900 bg-teal-100/80 px-2 py-0.5 rounded-full">
+                        {product.volumeFrascoMl}ml
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-stone-600 leading-relaxed">
-                    Esta fragrância é comercializada em frasco original completo e lacrado de fábrica. Fale diretamente com nossa consultoria para verificar a disponibilidade de volumetria e cotação personalizada.
+                    Fragrância completa comercializada em seu frasco original lacrado de fábrica, com garantia total de procedência.
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={handleConsultarFrascoOriginal}
-                  className="btn-teal w-full rounded-full py-3.5 text-sm font-semibold tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 transition"
-                >
-                  <svg width="20" height="20" viewBox="0 0 32 32" fill="white">
-                    <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.702 4.61 1.912 6.475L4 29l7.72-1.874A11.94 11.94 0 0 0 16.001 27C22.628 27 28 21.627 28 15S22.628 3 16.001 3Zm.001 21.6c-1.938 0-3.75-.55-5.287-1.5l-.379-.226-4.58 1.112 1.13-4.46-.248-.394A9.55 9.55 0 0 1 5.4 15c0-5.85 4.75-10.6 10.6-10.6S26.6 9.15 26.6 15 22.85 24.6 16.002 24.6Zm5.79-7.94c-.317-.159-1.878-.928-2.169-1.034-.29-.106-.502-.159-.713.16-.21.317-.818 1.033-1.003 1.245-.185.211-.37.238-.687.08-.317-.159-1.338-.494-2.548-1.575-.942-.84-1.578-1.878-1.763-2.195-.185-.317-.02-.489.139-.647.143-.142.317-.37.475-.556.159-.185.211-.317.317-.529.106-.211.053-.397-.026-.556-.08-.159-.713-1.72-.977-2.354-.257-.617-.518-.534-.713-.544-.185-.008-.397-.01-.608-.01-.211 0-.556.08-.847.397-.29.317-1.11 1.086-1.11 2.647 0 1.562 1.137 3.07 1.296 3.281.159.211 2.239 3.42 5.427 4.796.758.327 1.35.523 1.812.669.761.242 1.454.208 2.002.126.611-.091 1.878-.767 2.143-1.508.264-.741.264-1.376.185-1.508-.079-.132-.29-.211-.607-.37Z" />
-                  </svg>
-                  <span>Solicitar Orçamento no WhatsApp</span>
-                </button>
+                {product.precoFrascoLacrado && product.precoFrascoLacrado > 0 ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        {hasPromo && (
+                          <span className="text-sm line-through opacity-50 mr-2">{formatBRL(basePrice)}</span>
+                        )}
+                        <span className="font-display text-2xl font-semibold" style={{ color: "var(--teal-deep)" }}>
+                          {formatBRL(price)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(product, "lacrado")}
+                      className="btn-teal w-full rounded-full py-3.5 text-sm font-semibold tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 transition"
+                    >
+                      <span>Adicionar frasco ao carrinho</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleConsultarFrascoOriginal}
+                      className="w-full text-center text-xs text-stone-500 hover:text-stone-800 underline underline-offset-4 transition-colors cursor-pointer"
+                    >
+                      Dúvidas sobre o produto? Fale conosco no WhatsApp
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleConsultarFrascoOriginal}
+                    className="btn-teal w-full rounded-full py-3.5 text-sm font-semibold tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 transition"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 32 32" fill="white">
+                      <path d="M16.001 3C9.373 3 4 8.373 4 15c0 2.386.702 4.61 1.912 6.475L4 29l7.72-1.874A11.94 11.94 0 0 0 16.001 27C22.628 27 28 21.627 28 15S22.628 3 16.001 3Zm.001 21.6c-1.938 0-3.75-.55-5.287-1.5l-.379-.226-4.58 1.112 1.13-4.46-.248-.394A9.55 9.55 0 0 1 5.4 15c0-5.85 4.75-10.6 10.6-10.6S26.6 9.15 26.6 15 22.85 24.6 16.002 24.6Zm5.79-7.94c-.317-.159-1.878-.928-2.169-1.034-.29-.106-.502-.159-.713.16-.21.317-.818 1.033-1.003 1.245-.185.211-.37.238-.687.08-.317-.159-1.338-.494-2.548-1.575-.942-.84-1.578-1.878-1.763-2.195-.185-.317-.02-.489.139-.647.143-.142.317-.37.475-.556.159-.185.211-.317.317-.529.106-.211.053-.397-.026-.556-.08-.159-.713-1.72-.977-2.354-.257-.617-.518-.534-.713-.544-.185-.008-.397-.01-.608-.01-.211 0-.556.08-.847.397-.29.317-1.11 1.086-1.11 2.647 0 1.562 1.137 3.07 1.296 3.281.159.211 2.239 3.42 5.427 4.796.758.327 1.35.523 1.812.669.761.242 1.454.208 2.002.126.611-.091 1.878-.767 2.143-1.508.264-.741.264-1.376.185-1.508-.079-.132-.29-.211-.607-.37Z" />
+                    </svg>
+                    <span>Solicitar Orçamento no WhatsApp</span>
+                  </button>
+                )}
               </div>
             ) : (
+              /* Cenário 2: Decants ou Híbrido (Decants + Frasco Lacrado) */
               <>
                 <p className="text-[10px] tracking-label uppercase font-medium mb-2" style={{ color: "var(--teal-deep)" }}>
-                  Escolha o tamanho do decant
+                  {isHibrido ? "Escolha a apresentação desejada" : "Escolha o tamanho do decant"}
                 </p>
-                <div className="flex gap-2 mb-4">
+
+                <div className="flex flex-wrap gap-2 mb-4">
                   {([2, 5, 10] as SizeMl[]).map((sz) => (
                     <button
                       key={sz}
+                      type="button"
                       onClick={() => setSize(sz)}
-                      className={`pill ${size === sz ? "active" : ""} rounded-full px-4 py-2 text-sm font-medium flex-1`}
+                      className={`pill ${size === sz ? "active" : ""} rounded-full px-3.5 py-2 text-xs sm:text-sm font-medium flex-1`}
                     >
                       {sz}ml
                     </button>
                   ))}
+
+                  {permiteLacrado && (
+                    <button
+                      type="button"
+                      onClick={() => setSize("lacrado")}
+                      className={`pill ${size === "lacrado" ? "active" : ""} rounded-full px-3 py-2 text-xs sm:text-sm font-medium flex-1 whitespace-nowrap`}
+                    >
+                      📦 Frasco Lacrado {product.volumeFrascoMl ? `(${product.volumeFrascoMl}ml)` : ""}
+                    </button>
+                  )}
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    {hasPromo && (
-                      <span className="text-sm line-through opacity-50 mr-2">{formatBRL(basePrice)}</span>
-                    )}
-                    <span className="font-display text-2xl font-semibold" style={{ color: "var(--teal-deep)" }}>
-                      {formatBRL(price)}
-                    </span>
-                  </div>
-                </div>
+                {size === "lacrado" ? (
+                  product.precoFrascoLacrado && product.precoFrascoLacrado > 0 ? (
+                    <>
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          {hasPromo && (
+                            <span className="text-sm line-through opacity-50 mr-2">{formatBRL(basePrice)}</span>
+                          )}
+                          <span className="font-display text-2xl font-semibold" style={{ color: "var(--teal-deep)" }}>
+                            {formatBRL(price)}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-semibold text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">
+                          Frasco Original Lacrado
+                        </span>
+                      </div>
 
-                <button
-                  onClick={() => onAddToCart(product, size)}
-                  className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide shadow-md cursor-pointer"
-                >
-                  Adicionar ao carrinho
-                </button>
+                      <button
+                        type="button"
+                        onClick={() => onAddToCart(product, "lacrado")}
+                        className="btn-teal w-full rounded-full py-3.5 text-sm font-semibold tracking-wide shadow-md cursor-pointer hover:brightness-105 transition"
+                      >
+                        Adicionar frasco ao carrinho
+                      </button>
+                    </>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-xs text-stone-600 bg-stone-50 p-3 rounded-xl border border-stone-200">
+                        O frasco lacrado deste perfume está disponível sob consulta de cotação personalizada.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleConsultarFrascoOriginal}
+                        className="btn-teal w-full rounded-full py-3 text-sm font-semibold tracking-wide shadow-md flex items-center justify-center gap-2 cursor-pointer hover:brightness-105 transition"
+                      >
+                        <span>Consultar Frasco no WhatsApp</span>
+                      </button>
+                    </div>
+                  )
+                ) : (
+                  <>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        {hasPromo && (
+                          <span className="text-sm line-through opacity-50 mr-2">{formatBRL(basePrice)}</span>
+                        )}
+                        <span className="font-display text-2xl font-semibold" style={{ color: "var(--teal-deep)" }}>
+                          {formatBRL(price)}
+                        </span>
+                      </div>
+                      <span className="text-xs text-stone-400">Decant fracionado ({size}ml)</span>
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={handleConsultarFrascoOriginal}
-                  className="w-full mt-2 text-center text-sm text-stone-500 hover:text-stone-800 underline underline-offset-4 transition-colors cursor-pointer"
-                >
-                  Consultar disponibilidade do frasco lacrado
-                </button>
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(product, size)}
+                      className="btn-teal w-full rounded-full py-3 text-sm font-medium tracking-wide shadow-md cursor-pointer"
+                    >
+                      Adicionar ao carrinho
+                    </button>
+                  </>
+                )}
               </>
             )}
           </div>

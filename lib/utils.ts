@@ -1,4 +1,4 @@
-import { Product, SizeMl } from "@/types";
+import { CartSize, Product, SizeMl } from "@/types";
 
 export function formatBRL(v: number): string {
   const num = typeof v === "number" && !isNaN(v) ? v : 0;
@@ -7,8 +7,8 @@ export function formatBRL(v: number): string {
   return `R$ ${intPart},${parts[1]}`;
 }
 
-export function precoComPromo(produto: Product, size: SizeMl): number {
-  const base = produto.precos[size] ?? 0;
+export function precoComPromo(produto: Product, size: CartSize): number {
+  const base = size === "lacrado" ? (produto.precoFrascoLacrado ?? 0) : (produto.precos[size as SizeMl] ?? 0);
   if (produto.promo?.ativo && produto.promo.desconto > 0) {
     // Mantém precisão de 2 casas decimais (centavos reais)
     return Math.round(base * (1 - produto.promo.desconto / 100) * 100) / 100;

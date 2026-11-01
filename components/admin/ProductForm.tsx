@@ -32,6 +32,9 @@ function emptyProduct(categories: Category[]): Product {
     custoFrasco: 0,
     volumeFrascoMl: 100,
     margemLucroPct: 100,
+    vendeDecant: true,
+    vendeLacrado: false,
+    precoFrascoLacrado: 0,
   };
 }
 
@@ -61,6 +64,9 @@ export default function ProductForm({
         custoFrasco: product.custoFrasco ?? 0,
         volumeFrascoMl: product.volumeFrascoMl ?? 100,
         margemLucroPct: product.margemLucroPct ?? 100,
+        vendeDecant: product.vendeDecant !== false,
+        vendeLacrado: product.vendeLacrado !== undefined ? !!product.vendeLacrado : (Number(product.precoFrascoLacrado) > 0 || product.categoria === "lacrados"),
+        precoFrascoLacrado: product.precoFrascoLacrado ?? 0,
         imagens:
           Array.isArray(product.imagens) && product.imagens.length > 0
             ? product.imagens
@@ -111,6 +117,9 @@ export default function ProductForm({
   );
   const [margemLucroInput, setMargemLucroInput] = useState(
     initialProduct.margemLucroPct ? String(initialProduct.margemLucroPct).replace(".", ",") : "100"
+  );
+  const [precoFrascoLacradoInput, setPrecoFrascoLacradoInput] = useState(
+    formatBRLValue(initialProduct.precoFrascoLacrado)
   );
   const [precoInputs, setPrecoInputs] = useState<Record<SizeMl, string>>({
     2: formatBRLValue(initialProduct.precos[2]),
@@ -304,6 +313,16 @@ export default function ProductForm({
 
     if (!finalMarca || !form.nome.trim()) {
       setError("Preencha marca e nome do perfume.");
+      return;
+    }
+
+    if (!form.vendeLacrado && form.vendeDecant === false) {
+      setError("Selecione pelo menos uma modalidade de venda: Frasco Lacrado ou Decants.");
+      return;
+    }
+
+    if (form.vendeLacrado && (!form.precoFrascoLacrado || form.precoFrascoLacrado <= 0)) {
+      setError("Informe o preço de venda do frasco lacrado.");
       return;
     }
 
@@ -1147,186 +1166,306 @@ export default function ProductForm({
             </div>
           </div>
 
-          {/* Card: Calculadora e Preços dos Decants */}
+          {/* Card: Precificação & Modalidades de Venda */}
           <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
-            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
-              Precificação & Decants
-            </h3>
+            <div className="border-b border-black/5 pb-2">
+              <h3 className="font-display text-base font-semibold text-stone-900">
+                Precificação & Modalidades de Venda
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Defina se este perfume será vendido em decants, em frasco lacrado ou em ambas as opções
+              </p>
+            </div>
 
-      {/* 10. CALCULADORA FINANCEIRA COM MÁSCARA PONTO E VÍRGULA */}
-      <div className="glass rounded-2xl p-4 mb-4 border border-teal-500/30 bg-teal-500/5">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-1.5">
-            <label className="text-xs font-semibold uppercase tracking-label text-teal-800">
-              Calculadora de Custos & Precificação
-            </label>
-          </div>
-          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800">
-            {custoPorMl > 0 ? `R$ ${custoPorMl.toFixed(2).replace(".", ",")} / ml` : "Aguardando custos"}
-          </span>
-        </div>
+            {/* SELEÇÃO DAS MODALIDADES DE VENDA */}
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                Como este perfume será comercializado?
+              </label>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-          {/* Custo do Frasco com máscara BRL (ponto e vírgula) */}
-          <div>
-            <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-              Custo do Frasco (R$)
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={custoFrascoInput}
-              onChange={(e) => {
-                const { formatted, numericValue } = maskBRLDigits(e.target.value);
-                setCustoFrascoInput(formatted);
-                update("custoFrasco", numericValue);
-              }}
-              placeholder="0,00"
-              className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
-            />
-          </div>
-
-          {/* Volume do Frasco em ml */}
-          <div>
-            <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-              Volume do Frasco (ml)
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={form.volumeFrascoMl || ""}
-              onChange={(e) => update("volumeFrascoMl", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
-              placeholder="Ex: 100"
-              className="w-full rounded-lg px-3 py-2 text-sm font-medium border border-stone-300 bg-white"
-            />
-            <div className="flex gap-1 mt-1">
-              {[50, 75, 100, 125].map((ml) => (
-                <button
-                  key={ml}
-                  type="button"
-                  onClick={() => update("volumeFrascoMl", ml)}
-                  className={`text-[10px] px-1.5 py-0.5 rounded border transition cursor-pointer ${
-                    form.volumeFrascoMl === ml
-                      ? "bg-stone-900 text-white border-transparent font-bold"
-                      : "bg-white/60 text-stone-600 border-black/10 hover:bg-white"
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {/* Opção 1: Vender Frasco Lacrado */}
+                <div
+                  onClick={() => update("vendeLacrado", !form.vendeLacrado)}
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 select-none ${
+                    form.vendeLacrado
+                      ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-400/50 shadow-xs"
+                      : "border-black/10 bg-white/60 hover:bg-white"
                   }`}
                 >
-                  {ml}ml
-                </button>
-              ))}
-            </div>
-          </div>
+                  <input
+                    type="checkbox"
+                    checked={!!form.vendeLacrado}
+                    onChange={(e) => update("vendeLacrado", e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded text-amber-600 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-semibold block text-stone-900">
+                      📦 Frasco Lacrado
+                    </span>
+                    <span className="text-[11px] text-stone-500 leading-tight block mt-0.5">
+                      Venda do perfume original fechado
+                    </span>
+                  </div>
+                </div>
 
-          {/* Margem de Lucro com máscara de ponto e vírgula */}
-          <div>
-            <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-              Margem de Lucro (%)
-            </label>
-            <input
-              type="text"
-              inputMode="decimal"
-              value={margemLucroInput}
-              onChange={(e) => {
-                const { formatted, numericValue } = maskPercentInput(e.target.value);
-                setMargemLucroInput(formatted);
-                update("margemLucroPct", numericValue);
-              }}
-              placeholder="Ex: 120"
-              className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
-            />
-            <div className="flex gap-1 mt-1">
-              {[100, 120, 150, 200].map((pct) => (
-                <button
-                  key={pct}
-                  type="button"
-                  onClick={() => {
-                    update("margemLucroPct", pct);
-                    setMargemLucroInput(String(pct));
+                {/* Opção 2: Vender Decants */}
+                <div
+                  onClick={() => update("vendeDecant", form.vendeDecant === false ? true : false)}
+                  className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-2.5 select-none ${
+                    form.vendeDecant !== false
+                      ? "border-teal-500 bg-teal-50/50 ring-1 ring-teal-400/50 shadow-xs"
+                      : "border-black/10 bg-white/60 hover:bg-white"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={form.vendeDecant !== false}
+                    onChange={(e) => update("vendeDecant", e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded text-teal-600 cursor-pointer"
+                  />
+                  <div>
+                    <span className="text-xs font-semibold block text-stone-900">
+                      🧪 Decants (Fracionados)
+                    </span>
+                    <span className="text-[11px] text-stone-500 leading-tight block mt-0.5">
+                      Venda em 2ml, 5ml e 10ml
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SEÇÃO 1: PREÇO DO FRASCO LACRADO (se vendeLacrado ativo) */}
+            {form.vendeLacrado && (
+              <div className="p-3.5 rounded-xl border border-amber-500/30 bg-amber-500/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold uppercase tracking-label text-amber-900">
+                    Preço de Venda do Frasco Lacrado (R$)
+                  </label>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-200/80 text-amber-900">
+                    {form.volumeFrascoMl || 100}ml Original
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={precoFrascoLacradoInput}
+                  onChange={(e) => {
+                    const { formatted, numericValue } = maskBRLDigits(e.target.value);
+                    setPrecoFrascoLacradoInput(formatted);
+                    update("precoFrascoLacrado", numericValue);
                   }}
-                  className={`text-[10px] px-1.5 py-0.5 rounded border transition cursor-pointer ${
-                    form.margemLucroPct === pct
-                      ? "bg-stone-900 text-white border-transparent font-bold"
-                      : "bg-white/60 text-stone-600 border-black/10 hover:bg-white"
-                  }`}
-                >
-                  +{pct}%
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
+                  placeholder="Ex: 890,00"
+                  className="w-full rounded-lg px-3 py-2 text-sm font-bold border border-amber-400/60 bg-white text-stone-900 focus:ring-1 focus:ring-amber-500"
+                />
+                <p className="text-[11px] text-stone-600">
+                  Preço final do frasco lacrado exibido no catálogo e no modal de compra.
+                </p>
+              </div>
+            )}
 
-        {/* Quadro com valores sugeridos */}
-        <div className="bg-white/70 rounded-xl p-3 border border-black/5 mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-stone-700">
-              Valores Sugeridos para Decants:
-            </span>
-            <span className="text-[10px] text-stone-500">
-              Inclui frasco spray + etiqueta
-            </span>
-          </div>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="p-2 rounded-lg bg-teal-50 border border-teal-200/50">
-              <span className="block text-[10px] text-stone-500 font-medium">2ml Sugerido</span>
-              <span className="text-sm font-bold text-teal-800">
-                {sugestao2 > 0 ? `R$ ${formatBRLValue(sugestao2)}` : "--"}
-              </span>
-            </div>
-            <div className="p-2 rounded-lg bg-teal-50 border border-teal-200/50">
-              <span className="block text-[10px] text-stone-500 font-medium">5ml Sugerido</span>
-              <span className="text-sm font-bold text-teal-800">
-                {sugestao5 > 0 ? `R$ ${formatBRLValue(sugestao5)}` : "--"}
-              </span>
-            </div>
-            <div className="p-2 rounded-lg bg-teal-50 border border-teal-200/50">
-              <span className="block text-[10px] text-stone-500 font-medium">10ml Sugerido</span>
-              <span className="text-sm font-bold text-teal-800">
-                {sugestao10 > 0 ? `R$ ${formatBRLValue(sugestao10)}` : "--"}
-              </span>
-            </div>
-          </div>
-        </div>
+            {/* SEÇÃO 2: CALCULADORA E PRECIFICAÇÃO DE DECANTS (se vendeDecant ativo) */}
+            {form.vendeDecant !== false && (
+              <div className="space-y-4 pt-1">
+                {/* Calculadora Financeira Redesenhada em 2 Linhas Amplas */}
+                <div className="glass rounded-2xl p-4 border border-teal-500/30 bg-teal-500/5 space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-teal-500/10">
+                    <label className="text-xs font-semibold uppercase tracking-label text-teal-900">
+                      Calculadora de Custos & Markup
+                    </label>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800">
+                      {custoPorMl > 0 ? `R$ ${custoPorMl.toFixed(2).replace(".", ",")} / ml` : "Aguardando custos"}
+                    </span>
+                  </div>
 
-        <button
-          type="button"
-          onClick={aplicarPrecosSugeridos}
-          disabled={sugestao2 <= 0}
-          className="w-full py-2.5 px-3 rounded-xl text-xs font-semibold btn-teal shadow flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40"
-        >
-          <span>Aplicar Preços Sugeridos nos Decants</span>
-        </button>
-      </div>
+                  {/* Linha 1 da Calculadora: Custo do Frasco e Volume (Grid 2 colunas amplo) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Custo de Aquisição */}
+                    <div>
+                      <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                        Custo do Frasco (R$)
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={custoFrascoInput}
+                        onChange={(e) => {
+                          const { formatted, numericValue } = maskBRLDigits(e.target.value);
+                          setCustoFrascoInput(formatted);
+                          update("custoFrasco", numericValue);
+                        }}
+                        placeholder="0,00"
+                        className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
+                      />
+                    </div>
 
-      {/* 11. PREÇOS DOS DECANTS COM MÁSCARA PONTO E VÍRGULA */}
-      <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--teal-deep)" }}>
-        Preços dos Decants (com ponto e vírgula)
-      </label>
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        {([2, 5, 10] as SizeMl[]).map((sz) => (
-          <div key={sz}>
-            <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-              Preço {sz}ml (R$)
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={precoInputs[sz] || ""}
-              onChange={(e) => {
-                const { formatted, numericValue } = maskBRLDigits(e.target.value);
-                setPrecoInputs((prev) => ({ ...prev, [sz]: formatted }));
-                update("precos", {
-                  ...form.precos,
-                  [sz]: numericValue,
-                });
-              }}
-              placeholder="0,00"
-              className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
-            />
+                    {/* Volume com atalhos em grid de 4 colunas sem sobreposição */}
+                    <div>
+                      <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                        Volume do Frasco (ml)
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={form.volumeFrascoMl || ""}
+                        onChange={(e) => update("volumeFrascoMl", e.target.value === "" ? 0 : parseFloat(e.target.value) || 0)}
+                        placeholder="Ex: 100"
+                        className="w-full rounded-lg px-3 py-2 text-sm font-medium border border-stone-300 bg-white"
+                      />
+                      <div className="grid grid-cols-4 gap-1 mt-1.5">
+                        {[50, 75, 100, 125].map((ml) => (
+                          <button
+                            key={ml}
+                            type="button"
+                            onClick={() => update("volumeFrascoMl", ml)}
+                            className={`text-[10px] py-1 rounded border transition cursor-pointer text-center font-medium ${
+                              form.volumeFrascoMl === ml
+                                ? "bg-stone-900 text-white border-transparent font-bold"
+                                : "bg-white/80 text-stone-600 border-black/10 hover:bg-white"
+                            }`}
+                          >
+                            {ml}ml
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Linha 2 da Calculadora: Margem de Lucro (%) com barra dedicada de atalhos */}
+                  <div>
+                    <label className="block text-xs mb-1 font-medium" style={{ color: "var(--ink-soft)" }}>
+                      Margem de Lucro Desejada (%)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={margemLucroInput}
+                      onChange={(e) => {
+                        const { formatted, numericValue } = maskPercentInput(e.target.value);
+                        setMargemLucroInput(formatted);
+                        update("margemLucroPct", numericValue);
+                      }}
+                      placeholder="Ex: 120"
+                      className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
+                    />
+                    {/* Barra de atalhos em 4 colunas proporcionais */}
+                    <div className="grid grid-cols-4 gap-1.5 mt-1.5">
+                      {[100, 120, 150, 200].map((pct) => (
+                        <button
+                          key={pct}
+                          type="button"
+                          onClick={() => {
+                            update("margemLucroPct", pct);
+                            setMargemLucroInput(String(pct));
+                          }}
+                          className={`text-[11px] py-1 rounded border transition cursor-pointer text-center font-semibold ${
+                            form.margemLucroPct === pct
+                              ? "bg-stone-900 text-white border-transparent shadow-xs"
+                              : "bg-white/80 text-stone-700 border-black/10 hover:bg-white"
+                          }`}
+                        >
+                          +{pct}%
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quadro com valores sugeridos */}
+                  <div className="bg-white/80 rounded-xl p-3 border border-black/5">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-stone-800">
+                        Valores Sugeridos para Decants:
+                      </span>
+                      <span className="text-[10px] text-stone-500">
+                        Spray + etiqueta inclusos
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="p-2 rounded-lg bg-teal-50/80 border border-teal-200/60">
+                        <span className="block text-[10px] text-stone-500 font-medium">2ml</span>
+                        <span className="text-sm font-bold text-teal-900">
+                          {sugestao2 > 0 ? `R$ ${formatBRLValue(sugestao2)}` : "--"}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-teal-50/80 border border-teal-200/60">
+                        <span className="block text-[10px] text-stone-500 font-medium">5ml</span>
+                        <span className="text-sm font-bold text-teal-900">
+                          {sugestao5 > 0 ? `R$ ${formatBRLValue(sugestao5)}` : "--"}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-lg bg-teal-50/80 border border-teal-200/60">
+                        <span className="block text-[10px] text-stone-500 font-medium">10ml</span>
+                        <span className="text-sm font-bold text-teal-900">
+                          {sugestao10 > 0 ? `R$ ${formatBRLValue(sugestao10)}` : "--"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Botão Aplicar Preços Sugeridos nos Decants */}
+                  <button
+                    type="button"
+                    onClick={aplicarPrecosSugeridos}
+                    disabled={sugestao2 <= 0}
+                    className="w-full py-2.5 px-3 rounded-xl text-xs font-semibold btn-teal shadow flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="4" y="2" width="16" height="20" rx="2" />
+                      <line x1="8" y1="6" x2="16" y2="6" />
+                      <line x1="16" y1="14" x2="16" y2="18" />
+                      <line x1="16" y1="10" x2="16" y2="10" />
+                      <line x1="12" y1="10" x2="12" y2="10" />
+                      <line x1="8" y1="10" x2="8" y2="10" />
+                      <line x1="12" y1="14" x2="12" y2="14" />
+                      <line x1="8" y1="14" x2="8" y2="14" />
+                      <line x1="12" y1="18" x2="12" y2="18" />
+                      <line x1="8" y1="18" x2="8" y2="18" />
+                    </svg>
+                    <span>Aplicar Preços Sugeridos nos Decants</span>
+                  </button>
+                </div>
+
+                {/* Preços Finais dos Decants */}
+                <div>
+                  <label className="block text-xs font-semibold mb-1.5 uppercase tracking-label" style={{ color: "var(--teal-deep)" }}>
+                    Preços Finais dos Decants (R$)
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {([2, 5, 10] as SizeMl[]).map((sz) => (
+                      <div key={sz}>
+                        <label className="block text-[11px] mb-1 font-medium text-stone-600">
+                          Decant {sz}ml
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={precoInputs[sz] || ""}
+                          onChange={(e) => {
+                            const { formatted, numericValue } = maskBRLDigits(e.target.value);
+                            setPrecoInputs((prev) => ({ ...prev, [sz]: formatted }));
+                            update("precos", {
+                              ...form.precos,
+                              [sz]: numericValue,
+                            });
+                          }}
+                          placeholder="0,00"
+                          className="w-full rounded-lg px-3 py-2 text-sm font-semibold border border-stone-300 bg-white"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Aviso se nenhuma modalidade estiver selecionada */}
+            {!form.vendeLacrado && form.vendeDecant === false && (
+              <p className="text-xs p-3 rounded-xl bg-amber-50 text-amber-800 border border-amber-200">
+                Selecione pelo menos uma modalidade de venda (Frasco Lacrado ou Decants).
+              </p>
+            )}
           </div>
-        ))}
-      </div>
-    </div>
 
     {/* 12. PROMOÇÃO */}
     <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs">
