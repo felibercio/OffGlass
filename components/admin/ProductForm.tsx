@@ -419,480 +419,561 @@ export default function ProductForm({
               Identificação & Classificação
             </h3>
 
-            {/* 1. SELEÇÃO DE CATEGORIA com Busca + Opção (Outro) */}
-      <div className="mb-4 relative">
-        <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-          Categoria
-        </label>
-        
-        {!isCustomCategory ? (
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between text-left font-medium border border-black/15 bg-white/80 cursor-pointer hover:bg-white"
-            >
-              <span>{currentCategoryLabel}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-
-            {showCategoryDropdown && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2 animate-fade-in max-h-64 overflow-y-auto bg-white">
-                <input
-                  type="text"
-                  value={categorySearch}
-                  onChange={(e) => setCategorySearch(e.target.value)}
-                  placeholder="Pesquisar categoria..."
-                  className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
-                  autoFocus
-                />
+            {/* Linha 1 no Desktop: Categoria e Marca lado a lado */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* 1. SELEÇÃO DE CATEGORIA com Busca + Opção (Outro) */}
+              <div className="relative">
+                <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                  Categoria
+                </label>
                 
-                <div className="space-y-1">
-                  {filteredCategories.map((c) => (
-                    <button
-                      key={c.key}
-                      type="button"
-                      onClick={() => {
-                        update("categoria", c.key);
-                        setShowCategoryDropdown(false);
-                        setCategorySearch("");
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                        form.categoria === c.key
-                          ? "bg-stone-900 text-white"
-                          : "hover:bg-stone-100"
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
-                  {filteredCategories.length === 0 && (
-                    <p className="text-[11px] text-stone-400 py-1 text-center">Nenhuma categoria encontrada.</p>
-                  )}
-                  
-                  <div className="border-t border-black/10 pt-1 mt-1">
+                {!isCustomCategory ? (
+                  <div className="relative">
                     <button
                       type="button"
-                      onClick={() => {
-                        setIsCustomCategory(true);
-                        setShowCategoryDropdown(false);
-                      }}
-                      className="w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
+                      onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                      className="w-full rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between text-left font-medium border border-black/15 bg-white/80 cursor-pointer hover:bg-white"
                     >
-                      <span>+ Outro (Cadastrar nova categoria)</span>
+                      <span>{currentCategoryLabel}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
                     </button>
+
+                    {showCategoryDropdown && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2 animate-fade-in max-h-64 overflow-y-auto bg-white">
+                        <input
+                          type="text"
+                          value={categorySearch}
+                          onChange={(e) => setCategorySearch(e.target.value)}
+                          placeholder="Pesquisar categoria..."
+                          className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
+                          autoFocus
+                        />
+                        
+                        <div className="space-y-1">
+                          {filteredCategories.map((c) => (
+                            <button
+                              key={c.key}
+                              type="button"
+                              onClick={() => {
+                                update("categoria", c.key);
+                                setShowCategoryDropdown(false);
+                                setCategorySearch("");
+                              }}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                                form.categoria === c.key
+                                  ? "bg-stone-900 text-white"
+                                  : "hover:bg-stone-100"
+                              }`}
+                            >
+                              {c.label}
+                            </button>
+                          ))}
+                          {filteredCategories.length === 0 && (
+                            <p className="text-[11px] text-stone-400 py-1 text-center">Nenhuma categoria encontrada.</p>
+                          )}
+                          
+                          <div className="border-t border-black/10 pt-1 mt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomCategory(true);
+                                setShowCategoryDropdown(false);
+                              }}
+                              className="w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span>+ Outro (Cadastrar nova categoria)</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
+                ) : (
+                  <div className="p-3 rounded-xl border border-teal-500/40 bg-teal-50/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-teal-800">
+                        Criando Nova Categoria:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomCategory(false);
+                          setCustomCategoryName("");
+                        }}
+                        className="text-[11px] text-stone-500 hover:text-stone-800 underline cursor-pointer"
+                      >
+                        Voltar
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={customCategoryName}
+                      onChange={(e) => setCustomCategoryName(e.target.value)}
+                      placeholder="Nome da categoria (ex: Exclusivos)"
+                      className="w-full rounded-lg px-3 py-2 text-sm border border-teal-500 bg-white"
+                      autoFocus
+                    />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="p-3 rounded-xl border border-teal-500/40 bg-teal-50/20 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-teal-800">
-                Criando Nova Categoria:
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCustomCategory(false);
-                  setCustomCategoryName("");
-                }}
-                className="text-[11px] text-stone-500 hover:text-stone-800 underline cursor-pointer"
-              >
-                Voltar às categorias existentes
-              </button>
+
+              {/* 2. SELEÇÃO DE MARCA */}
+              <div className="relative">
+                <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                  Marca
+                </label>
+
+                {!isCustomBrand ? (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowBrandDropdown(!showBrandDropdown)}
+                      className="w-full rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between text-left font-medium border border-black/15 bg-white/80 cursor-pointer hover:bg-white"
+                    >
+                      <span>{form.marca || "Selecione uma marca existente..."}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
+                        <polyline points="6 9 12 15 18 9" />
+                      </svg>
+                    </button>
+
+                    {showBrandDropdown && (
+                      <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2 animate-fade-in max-h-64 overflow-y-auto bg-white">
+                        <input
+                          type="text"
+                          value={brandSearch}
+                          onChange={(e) => setBrandSearch(e.target.value)}
+                          placeholder="Pesquisar marca (ex: Xerjoff, Creed, Dior)..."
+                          className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
+                          autoFocus
+                        />
+
+                        <div className="space-y-1">
+                          {filteredBrands.map((b) => (
+                            <button
+                              key={b}
+                              type="button"
+                              onClick={() => {
+                                update("marca", b);
+                                setShowBrandDropdown(false);
+                                setBrandSearch("");
+                              }}
+                              className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
+                                form.marca === b
+                                  ? "bg-stone-900 text-white"
+                                  : "hover:bg-stone-100"
+                              }`}
+                            >
+                              {b}
+                            </button>
+                          ))}
+                          {filteredBrands.length === 0 && (
+                            <p className="text-[11px] text-stone-400 py-1 text-center">Nenhuma marca encontrada.</p>
+                          )}
+
+                          <div className="border-t border-black/10 pt-1 mt-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomBrand(true);
+                                setShowBrandDropdown(false);
+                              }}
+                              className="w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
+                            >
+                              <span>+ Outro (Cadastrar nova marca)</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl border border-teal-500/40 bg-teal-50/20 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-teal-800">
+                        Cadastrando Nova Marca:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsCustomBrand(false);
+                          setCustomBrandName("");
+                        }}
+                        className="text-[11px] text-stone-500 hover:text-stone-800 underline cursor-pointer"
+                      >
+                        Voltar
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={customBrandName}
+                      onChange={(e) => setCustomBrandName(e.target.value)}
+                      placeholder="Nome da nova marca (ex: Initio Parfums)"
+                      className="w-full rounded-lg px-3 py-2 text-sm border border-teal-500 bg-white"
+                      autoFocus
+                    />
+                  </div>
+                )}
+              </div>
             </div>
-            <input
-              type="text"
-              value={customCategoryName}
-              onChange={(e) => setCustomCategoryName(e.target.value)}
-              placeholder="Digite o nome da nova categoria (ex: Exclusivos)"
-              className="w-full rounded-lg px-3 py-2 text-sm border border-teal-500 bg-white"
-              autoFocus
-            />
-          </div>
-        )}
-      </div>
 
-      {/* 2. SELEÇÃO DE MARCA (MESMO PADRÃO DE CATEGORIA + OPÇÃO DE CRIAR NOVA) */}
-      <div className="mb-4 relative">
-        <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-          Marca
-        </label>
-
-        {!isCustomBrand ? (
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowBrandDropdown(!showBrandDropdown)}
-              className="w-full rounded-xl px-3.5 py-2.5 text-sm flex items-center justify-between text-left font-medium border border-black/15 bg-white/80 cursor-pointer hover:bg-white"
-            >
-              <span>{form.marca || "Selecione uma marca existente..."}</span>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-500">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-
-            {showBrandDropdown && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2 animate-fade-in max-h-64 overflow-y-auto bg-white">
+            {/* Linha 2 no Desktop: Nome do Perfume e Gênero Olfativo */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+              {/* 3. NOME DO PERFUME */}
+              <div className="sm:col-span-7">
+                <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                  Nome do perfume
+                </label>
                 <input
                   type="text"
-                  value={brandSearch}
-                  onChange={(e) => setBrandSearch(e.target.value)}
-                  placeholder="Pesquisar marca (ex: Xerjoff, Creed, Dior)..."
-                  className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
-                  autoFocus
+                  value={form.nome}
+                  onChange={(e) => update("nome", e.target.value)}
+                  className="w-full rounded-xl px-3.5 py-2.5 text-sm border border-stone-300 bg-white"
+                  placeholder="Ex: Naxos"
                 />
+              </div>
 
-                <div className="space-y-1">
-                  {filteredBrands.map((b) => (
+              {/* 4. GÊNERO OLFATIVO */}
+              <div className="sm:col-span-5">
+                <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                  Gênero Olfativo
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {(["compartilhado", "masculino", "feminino"] as Genero[]).map((g) => (
                     <button
-                      key={b}
+                      key={g}
                       type="button"
-                      onClick={() => {
-                        update("marca", b);
-                        setShowBrandDropdown(false);
-                        setBrandSearch("");
-                      }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium transition cursor-pointer ${
-                        form.marca === b
-                          ? "bg-stone-900 text-white"
-                          : "hover:bg-stone-100"
+                      onClick={() => update("genero", g)}
+                      className={`py-2 px-1 rounded-xl text-[11px] font-semibold border transition cursor-pointer text-center ${
+                        (form.genero || "compartilhado") === g
+                          ? "bg-stone-900 text-white border-transparent shadow-sm"
+                          : "bg-white/70 text-stone-700 border-black/10 hover:bg-white"
                       }`}
                     >
-                      {b}
+                      {g === "compartilhado" ? "Unissex" : g === "masculino" ? "Masc." : "Fem."}
                     </button>
                   ))}
-                  {filteredBrands.length === 0 && (
-                    <p className="text-[11px] text-stone-400 py-1 text-center">Nenhuma marca encontrada.</p>
-                  )}
-
-                  <div className="border-t border-black/10 pt-1 mt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsCustomBrand(true);
-                        setShowBrandDropdown(false);
-                      }}
-                      className="w-full text-left px-2.5 py-2 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>+ Outro (Cadastrar nova marca)</span>
-                    </button>
-                  </div>
                 </div>
               </div>
-            )}
-          </div>
-        ) : (
-          <div className="p-3 rounded-xl border border-teal-500/40 bg-teal-50/20 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-teal-800">
-                Cadastrando Nova Marca:
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCustomBrand(false);
-                  setCustomBrandName("");
-                }}
-                className="text-[11px] text-stone-500 hover:text-stone-800 underline cursor-pointer"
-              >
-                Voltar às marcas existentes
-              </button>
             </div>
-            <input
-              type="text"
-              value={customBrandName}
-              onChange={(e) => setCustomBrandName(e.target.value)}
-              placeholder="Digite o nome da nova marca (ex: Initio Parfums)"
-              className="w-full rounded-lg px-3 py-2 text-sm border border-teal-500 bg-white"
-              autoFocus
-            />
-          </div>
-        )}
-      </div>
 
-      {/* 3. NOME DO PERFUME */}
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Nome do perfume
-      </label>
-      <input
-        type="text"
-        value={form.nome}
-        onChange={(e) => update("nome", e.target.value)}
-        className="w-full rounded-lg px-3 py-2 mb-4 text-sm"
-        placeholder="Ex: Naxos"
-      />
-
-      {/* 4. GÊNERO OLFATIVO */}
-      <div className="mb-4">
-        <label className="block text-xs font-semibold mb-1 uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-          Gênero Olfativo
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {(["compartilhado", "masculino", "feminino"] as Genero[]).map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => update("genero", g)}
-              className={`py-2 px-2 rounded-xl text-xs font-semibold border transition cursor-pointer ${
-                (form.genero || "compartilhado") === g
-                  ? "bg-stone-900 text-white border-transparent shadow-sm"
-                  : "bg-white/60 text-stone-700 border-black/10 hover:bg-white"
-              }`}
-            >
-              {g === "compartilhado" ? "Compartilhado" : g === "masculino" ? "Masculino" : "Feminino"}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 5. DESTAQUE NA HOME */}
-      <div className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
-        <label className="flex items-center gap-2 text-xs font-semibold text-amber-900 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={!!form.destaque}
-            onChange={(e) => update("destaque", e.target.checked)}
-            className="w-4 h-4 rounded text-amber-600 cursor-pointer"
-          />
-          <span>Destacar na Home (exibir na seção Destaques)</span>
-        </label>
-        {form.destaque && (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
-            Ativo
-          </span>
-        )}
-      </div>
+            {/* 5. DESTAQUE NA HOME */}
+            <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between">
+              <label className="flex items-center gap-2 text-xs font-semibold text-amber-900 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={!!form.destaque}
+                  onChange={(e) => update("destaque", e.target.checked)}
+                  className="w-4 h-4 rounded text-amber-600 cursor-pointer"
+                />
+                <span>Destacar na Home (exibir na seção Destaques do catálogo)</span>
+              </label>
+              {form.destaque && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
+                  Ativo
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Card 2: Textos de Apresentação */}
           <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
-            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
-              Textos de Apresentação
-            </h3>
-
-            {/* 7. DESCRIÇÕES */}
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-                Descrição curta (vitrine)
-              </label>
-              <input
-                type="text"
-                value={form.descricaoCurta}
-                onChange={(e) => update("descricaoCurta", e.target.value)}
-                className="w-full rounded-lg px-3 py-2 text-sm"
-                placeholder="Fragrância oriental especiada com toque de mel e tabaco"
-              />
+            <div className="border-b border-black/5 pb-2">
+              <h3 className="font-display text-base font-semibold text-stone-900">
+                Textos de Apresentação
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Descrições visualizadas pelos clientes na vitrine e na ficha técnica
+              </p>
             </div>
 
-            <div>
-              <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-                Descrição completa (modal de detalhes)
-              </label>
-              <textarea
-                value={form.descricaoCompleta}
-                onChange={(e) => update("descricaoCompleta", e.target.value)}
-                rows={4}
-                className="w-full rounded-lg px-3 py-2 text-sm"
-                placeholder="Descrição mais detalhada, estilo Fragrantica, escrita por você"
-              />
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                    Descrição Curta (Vitrine / Catálogo)
+                  </label>
+                  <span className="text-[11px] text-stone-400">
+                    Aparece no card do produto
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  value={form.descricaoCurta}
+                  onChange={(e) => update("descricaoCurta", e.target.value)}
+                  className="w-full rounded-xl px-3.5 py-2.5 text-sm border border-stone-300 bg-white"
+                  placeholder="Ex: Fragrância oriental especiada com toque de mel e tabaco"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
+                    Descrição Completa (Modal de Detalhes)
+                  </label>
+                  <span className="text-[11px] text-stone-400">
+                    Ficha sensorial completa
+                  </span>
+                </div>
+                <textarea
+                  value={form.descricaoCompleta}
+                  onChange={(e) => update("descricaoCompleta", e.target.value)}
+                  rows={4}
+                  className="w-full rounded-xl px-3.5 py-2.5 text-sm border border-stone-300 bg-white"
+                  placeholder="Descrição sensorial aprofundada, história da fragrância e percepção das notas..."
+                />
+              </div>
             </div>
           </div>
 
-          {/* Card 3: Perfil Olfativo & Pirâmide */}
+          {/* Card 3: Perfil Olfativo & Acordes */}
           <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
-            <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
-              Perfil Olfativo & Pirâmide
-            </h3>
+            <div className="border-b border-black/5 pb-2">
+              <h3 className="font-display text-base font-semibold text-stone-900">
+                Perfil Olfativo & Acordes
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Principais famílias olfativas que definem a fragrância
+              </p>
+            </div>
 
-            {/* 8. PRINCIPAIS ACORDES (ORGANIZADO COM PADRÃO COMBOBOX + TAGS SELECIONADAS) */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-semibold uppercase tracking-label" style={{ color: "var(--ink-soft)" }}>
-                  Principais Acordes Olfativos ({form.acordes.length})
+                  Acordes Selecionados ({form.acordes.length})
                 </label>
-                <span className="text-[11px] text-stone-500">
+                <span className="text-[11px] text-stone-400">
                   Texto sempre preto e tag colorida
                 </span>
               </div>
-          <span className="text-[11px] text-stone-500">
-            Texto sempre preto e tag colorida
-          </span>
-        </div>
 
-        {/* Tags Selecionadas */}
-        <div className="min-h-11 p-2.5 rounded-xl border border-black/10 bg-white/70 mb-2 flex flex-wrap gap-1.5 items-center">
-          {form.acordes.length > 0 ? (
-            form.acordes.map((accKey) => {
-              const acc = availableAccords.find((a) => a.key === accKey) || {
-                key: accKey,
-                label: accKey,
-                cor: "#6E9C93",
-              };
-              return (
-                <span
-                  key={accKey}
-                  className="text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5 border shadow-xs"
-                  style={{
-                    background: acc.cor + "2e",
-                    color: "#1b1f1d", // SEMPRE PRETO
-                    borderColor: acc.cor + "66",
-                  }}
-                >
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ background: acc.cor }} />
-                  <span>{acc.label}</span>
-                  <button
-                    type="button"
-                    onClick={() => toggleAccord(accKey)}
-                    className="hover:text-red-600 font-bold ml-0.5 cursor-pointer"
-                    title="Remover acorde deste perfume"
-                  >
-                    ✕
-                  </button>
-                </span>
-              );
-            })
-          ) : (
-            <span className="text-xs text-stone-400 italic">
-              Nenhum acorde selecionado. Clique abaixo para pesquisar e adicionar.
-            </span>
-          )}
-        </div>
-
-        {/* Dropdown Pesquisável de Acordes */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => setShowAccordDropdown(!showAccordDropdown)}
-            className="w-full rounded-xl px-3.5 py-2 text-xs flex items-center justify-between font-semibold border border-stone-300 bg-white hover:bg-stone-50 cursor-pointer text-stone-700"
-          >
-            <span>+ Adicionar / Buscar Acordes Olfativos</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-
-          {showAccordDropdown && (
-            <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2.5 animate-fade-in max-h-64 overflow-y-auto bg-white">
-              <input
-                type="text"
-                value={accordSearch}
-                onChange={(e) => setAccordSearch(e.target.value)}
-                placeholder="Pesquisar acorde (ex: Amadeirado, Cítrico, Baunilha)..."
-                className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
-                autoFocus
-              />
-
-              <div className="space-y-1">
-                {filteredAccords.map((a) => {
-                  const isSelected = form.acordes.includes(a.key);
-                  return (
-                    <button
-                      key={a.key}
-                      type="button"
-                      onClick={() => toggleAccord(a.key)}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                        isSelected ? "bg-teal-50 text-teal-900 border border-teal-200" : "hover:bg-stone-50 text-stone-800"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ background: a.cor }} />
-                        <span style={{ color: "#1b1f1d" }}>{a.label}</span>
-                      </div>
-                      <span className="text-xs font-bold">{isSelected ? "✓" : "+"}</span>
-                    </button>
-                  );
-                })}
-
-                {filteredAccords.length === 0 && (
-                  <p className="text-[11px] text-stone-400 py-1 text-center">Nenhum acorde encontrado.</p>
+              {/* Tags Selecionadas */}
+              <div className="min-h-11 p-2.5 rounded-xl border border-black/10 bg-white/70 mb-3 flex flex-wrap gap-1.5 items-center">
+                {form.acordes.length > 0 ? (
+                  form.acordes.map((accKey) => {
+                    const acc = availableAccords.find((a) => a.key === accKey) || {
+                      key: accKey,
+                      label: accKey,
+                      cor: "#6E9C93",
+                    };
+                    return (
+                      <span
+                        key={accKey}
+                        className="text-xs px-2.5 py-1 rounded-full font-semibold flex items-center gap-1.5 border shadow-xs"
+                        style={{
+                          background: acc.cor + "2e",
+                          color: "#1b1f1d",
+                          borderColor: acc.cor + "66",
+                        }}
+                      >
+                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: acc.cor }} />
+                        <span>{acc.label}</span>
+                        <button
+                          type="button"
+                          onClick={() => toggleAccord(accKey)}
+                          className="hover:text-red-600 font-bold ml-0.5 cursor-pointer"
+                          title="Remover acorde deste perfume"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    );
+                  })
+                ) : (
+                  <span className="text-xs text-stone-400 italic">
+                    Nenhum acorde selecionado. Clique abaixo para pesquisar e adicionar.
+                  </span>
                 )}
+              </div>
 
-                <div className="border-t border-black/10 pt-2 mt-2">
-                  {!isCreatingAccord ? (
-                    <button
-                      type="button"
-                      onClick={() => setIsCreatingAccord(true)}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>+ Criar novo acorde rápido</span>
-                    </button>
-                  ) : (
-                    <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[11px] font-bold text-stone-700">Novo Acorde:</span>
-                        <button
-                          type="button"
-                          onClick={() => setIsCreatingAccord(false)}
-                          className="text-[10px] text-stone-500 hover:underline"
-                        >
-                          Fechar
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        value={newAccordName}
-                        onChange={(e) => setNewAccordName(e.target.value)}
-                        placeholder="Nome do acorde"
-                        className="w-full text-xs rounded px-2 py-1 border border-stone-300"
-                      />
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={newAccordColor}
-                          onChange={(e) => setNewAccordColor(e.target.value)}
-                          className="w-8 h-7 rounded cursor-pointer"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleQuickCreateAccord}
-                          disabled={savingNewAccord || !newAccordName.trim()}
-                          className="btn-teal rounded px-3 py-1 text-xs font-semibold flex-1 disabled:opacity-40"
-                        >
-                          {savingNewAccord ? "Criando..." : "Salvar Acorde"}
-                        </button>
+              {/* Dropdown Pesquisável de Acordes */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowAccordDropdown(!showAccordDropdown)}
+                  className="w-full rounded-xl px-3.5 py-2 text-xs flex items-center justify-between font-semibold border border-stone-300 bg-white hover:bg-stone-50 cursor-pointer text-stone-700"
+                >
+                  <span>+ Adicionar / Buscar Acordes Olfativos</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400">
+                    <polyline points="6 9 12 15 18 9" />
+                  </svg>
+                </button>
+
+                {showAccordDropdown && (
+                  <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2.5 animate-fade-in max-h-64 overflow-y-auto bg-white">
+                    <input
+                      type="text"
+                      value={accordSearch}
+                      onChange={(e) => setAccordSearch(e.target.value)}
+                      placeholder="Pesquisar acorde (ex: Amadeirado, Cítrico, Baunilha)..."
+                      className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
+                      autoFocus
+                    />
+
+                    <div className="space-y-1">
+                      {filteredAccords.map((a) => {
+                        const isSelected = form.acordes.includes(a.key);
+                        return (
+                          <button
+                            key={a.key}
+                            type="button"
+                            onClick={() => toggleAccord(a.key)}
+                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                              isSelected ? "bg-teal-50 text-teal-900 border border-teal-200" : "hover:bg-stone-50 text-stone-800"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: a.cor }} />
+                              <span style={{ color: "#1b1f1d" }}>{a.label}</span>
+                            </div>
+                            <span className="text-xs font-bold">{isSelected ? "✓" : "+"}</span>
+                          </button>
+                        );
+                      })}
+
+                      {filteredAccords.length === 0 && (
+                        <p className="text-[11px] text-stone-400 py-1 text-center">Nenhum acorde encontrado.</p>
+                      )}
+
+                      <div className="border-t border-black/10 pt-2 mt-2">
+                        {!isCreatingAccord ? (
+                          <button
+                            type="button"
+                            onClick={() => setIsCreatingAccord(true)}
+                            className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <span>+ Criar novo acorde rápido</span>
+                          </button>
+                        ) : (
+                          <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-stone-700">Novo Acorde:</span>
+                              <button
+                                type="button"
+                                onClick={() => setIsCreatingAccord(false)}
+                                className="text-[10px] text-stone-500 hover:underline"
+                              >
+                                Fechar
+                              </button>
+                            </div>
+                            <input
+                              type="text"
+                              value={newAccordName}
+                              onChange={(e) => setNewAccordName(e.target.value)}
+                              placeholder="Nome do acorde"
+                              className="w-full text-xs rounded px-2 py-1 border border-stone-300"
+                            />
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="color"
+                                value={newAccordColor}
+                                onChange={(e) => setNewAccordColor(e.target.value)}
+                                className="w-8 h-7 rounded cursor-pointer"
+                              />
+                              <button
+                                type="button"
+                                onClick={handleQuickCreateAccord}
+                                disabled={savingNewAccord || !newAccordName.trim()}
+                                className="btn-teal rounded px-3 py-1 text-xs font-semibold flex-1 disabled:opacity-40"
+                              >
+                                {savingNewAccord ? "Criando..." : "Salvar Acorde"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
 
-      {/* 9. NOTAS OLFATIVAS */}
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Notas de topo
-      </label>
-      <input
-        type="text"
-        value={form.notas.topo}
-        onChange={(e) => update("notas", { ...form.notas, topo: e.target.value })}
-        className="w-full rounded-lg px-3 py-2 mb-3 text-sm"
-      />
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Notas de coração
-      </label>
-      <input
-        type="text"
-        value={form.notas.coracao}
-        onChange={(e) => update("notas", { ...form.notas, coracao: e.target.value })}
-        className="w-full rounded-lg px-3 py-2 mb-3 text-sm"
-      />
-      <label className="block text-xs mb-1" style={{ color: "var(--ink-soft)" }}>
-        Notas de fundo
-      </label>
-      <input
-        type="text"
-        value={form.notas.fundo}
-        onChange={(e) => update("notas", { ...form.notas, fundo: e.target.value })}
-        className="w-full rounded-lg px-3 py-2 text-sm"
-      />
+          {/* Card 4: Pirâmide Olfativa (Seção Própria com 3 Colunas no Desktop) */}
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-black/5 pb-2">
+              <div>
+                <h3 className="font-display text-base font-semibold text-stone-900">
+                  Pirâmide Olfativa
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Estrutura olfativa nos 3 estágios de evolução do perfume
+                </p>
+              </div>
+              <span className="text-[10px] tracking-label uppercase font-semibold px-2.5 py-1 rounded-full bg-stone-100 text-stone-700">
+                3 Estágios
+              </span>
+            </div>
+
+            {/* Grid de 3 Colunas no Desktop */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {/* 1. Notas de Topo / Saída */}
+              <div className="p-3.5 rounded-xl bg-white/70 border border-black/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shrink-0"></span>
+                    <label className="text-xs font-semibold uppercase tracking-label text-stone-900">
+                      Notas de Topo
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mb-2.5">
+                    Saída imediata (15 a 30 min)
+                  </p>
+                </div>
+                <textarea
+                  rows={3}
+                  value={form.notas.topo}
+                  onChange={(e) => update("notas", { ...form.notas, topo: e.target.value })}
+                  placeholder="Ex: Bergamota, Limão, Lavanda..."
+                  className="w-full rounded-lg px-3 py-2 text-xs border border-stone-200 bg-white focus:ring-1 focus:ring-[var(--teal-deep)]"
+                />
+              </div>
+
+              {/* 2. Notas de Coração / Corpo */}
+              <div className="p-3.5 rounded-xl bg-white/70 border border-black/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--teal-deep)] shrink-0"></span>
+                    <label className="text-xs font-semibold uppercase tracking-label text-stone-900">
+                      Notas de Coração
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mb-2.5">
+                    Corpo da fragrância (2h a 4h)
+                  </p>
+                </div>
+                <textarea
+                  rows={3}
+                  value={form.notas.coracao}
+                  onChange={(e) => update("notas", { ...form.notas, coracao: e.target.value })}
+                  placeholder="Ex: Mel Silvestre, Canela, Jasmim..."
+                  className="w-full rounded-lg px-3 py-2 text-xs border border-stone-200 bg-white focus:ring-1 focus:ring-[var(--teal-deep)]"
+                />
+              </div>
+
+              {/* 3. Notas de Fundo / Base */}
+              <div className="p-3.5 rounded-xl bg-white/70 border border-black/10 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#8C6E4A] shrink-0"></span>
+                    <label className="text-xs font-semibold uppercase tracking-label text-stone-900">
+                      Notas de Fundo
+                    </label>
+                  </div>
+                  <p className="text-[11px] text-stone-500 mb-2.5">
+                    Fixação & rastro (6h a 12h+)
+                  </p>
+                </div>
+                <textarea
+                  rows={3}
+                  value={form.notas.fundo}
+                  onChange={(e) => update("notas", { ...form.notas, fundo: e.target.value })}
+                  placeholder="Ex: Folhas de Tabaco, Fava Tonka, Baunilha..."
+                  className="w-full rounded-lg px-3 py-2 text-xs border border-stone-200 bg-white focus:ring-1 focus:ring-[var(--teal-deep)]"
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1245,9 +1326,10 @@ export default function ProductForm({
           </div>
         ))}
       </div>
+    </div>
 
-        {/* 12. PROMOÇÃO */}
-        <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs">
+    {/* 12. PROMOÇÃO */}
+    <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs">
           <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 mb-3 text-stone-900">
             Campanha Promocional
           </h3>
