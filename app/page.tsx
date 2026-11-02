@@ -1,4 +1,11 @@
-import { getProducts, getCategories, getAccords, getMensagemTemplate, getSalesCounts } from "@/lib/data";
+import {
+  getProducts,
+  getCategories,
+  getAccords,
+  getMensagemTemplate,
+  getSalesCounts,
+  getBannersConfig,
+} from "@/lib/data";
 import CatalogApp from "@/components/catalog/CatalogApp";
 
 // ISR: página em cache na CDN Edge da Vercel. Atualizada a cada 60s ou imediatamente
@@ -6,7 +13,7 @@ import CatalogApp from "@/components/catalog/CatalogApp";
 export const revalidate = 60;
 
 export default async function Home() {
-  const [products, categories, accords, mensagemPedidoTemplate, salesCounts] = await Promise.all([
+  const [products, categories, accords, mensagemPedidoTemplate, salesCounts, bannersConfig] = await Promise.all([
     getProducts(),
     getCategories(),
     getAccords(),
@@ -15,6 +22,7 @@ export default async function Home() {
       "Olá! Meu nome é {{nome}}. Gostaria de fazer o seguinte pedido: {{itens}}. Forma de pagamento: {{pagamento}}. Total: {{total}}"
     ),
     getSalesCounts(),
+    getBannersConfig(),
   ]);
 
   return (
@@ -24,6 +32,8 @@ export default async function Home() {
       accords={accords}
       mensagemPedidoTemplate={mensagemPedidoTemplate}
       salesCounts={salesCounts}
+      bannerDesktop={bannersConfig.bannerDesktop}
+      bannerMobile={bannersConfig.bannerMobile}
     />
   );
 }

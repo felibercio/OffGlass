@@ -36,12 +36,16 @@ export default function CatalogApp({
   accords,
   mensagemPedidoTemplate,
   salesCounts = {},
+  bannerDesktop = "/banner-desktop.png",
+  bannerMobile = "/banner-mobile.png",
 }: {
   products: Product[];
   categories: Category[];
   accords: Accord[];
   mensagemPedidoTemplate: string;
   salesCounts?: Record<string, number>;
+  bannerDesktop?: string;
+  bannerMobile?: string;
 }) {
   // Estados de Filtros e Busca
   const [searchQuery, setSearchQuery] = useState("");
@@ -383,9 +387,9 @@ export default function CatalogApp({
       <section className="relative w-full max-w-full bg-[#507b1f] overflow-hidden">
         {/* Banner Responsivo: Desktop (>= 768px) e Mobile (< 768px) */}
         <picture className="w-full max-w-full block">
-          <source media="(min-width: 768px)" srcSet="/banner-desktop.png" />
+          <source media="(min-width: 768px)" srcSet={bannerDesktop} />
           <img
-            src="/banner-mobile.png"
+            src={bannerMobile}
             alt="OFFGLASS SCENT — Fragrâncias Originais em Decants"
             className="w-full max-w-full h-auto block mx-auto"
             loading="eager"

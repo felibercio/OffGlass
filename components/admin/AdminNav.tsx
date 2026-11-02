@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 const TABS = [
   { href: "/admin", label: "Vendas", exact: true },
   { href: "/admin/produtos", label: "Produtos" },
+  { href: "/admin/banners", label: "Banners" },
   { href: "/admin/categorias", label: "Categorias" },
   { href: "/admin/acordes", label: "Acordes" },
   { href: "/admin/mensagens", label: "Mensagens" },

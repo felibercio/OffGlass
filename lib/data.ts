@@ -76,3 +76,29 @@ export async function getSalesCounts(): Promise<Record<string, number>> {
   }
 }
 
+export async function getBannersConfig(): Promise<{ bannerDesktop: string; bannerMobile: string }> {
+  const fallback = {
+    bannerDesktop: "/banner-desktop.png",
+    bannerMobile: "/banner-mobile.png",
+  };
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("site_config")
+      .select("chave, valor")
+      .in("chave", ["banner_desktop", "banner_mobile"]);
+
+    if (error || !data || data.length === 0) return fallback;
+
+    const desktop = data.find((d) => d.chave === "banner_desktop")?.valor;
+    const mobile = data.find((d) => d.chave === "banner_mobile")?.valor;
+
+    return {
+      bannerDesktop: desktop || fallback.bannerDesktop,
+      bannerMobile: mobile || fallback.bannerMobile,
+    };
+  } catch {
+    return fallback;
+  }
+}
+
