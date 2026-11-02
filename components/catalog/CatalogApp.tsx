@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   Accord,
+  BannersConfig,
   CartItem,
   CartSize,
   Category,
@@ -36,17 +38,19 @@ export default function CatalogApp({
   accords,
   mensagemPedidoTemplate,
   salesCounts = {},
-  bannerDesktop = "/banner-desktop.png",
-  bannerMobile = "/banner-mobile.png",
+  bannersConfig,
 }: {
   products: Product[];
   categories: Category[];
   accords: Accord[];
   mensagemPedidoTemplate: string;
   salesCounts?: Record<string, number>;
-  bannerDesktop?: string;
-  bannerMobile?: string;
+  bannersConfig?: BannersConfig;
 }) {
+  const banners = bannersConfig || {
+    top: { ativo: false, desktop: "", mobile: "", link: "" },
+    hero: { ativo: true, desktop: "/banner-desktop.png", mobile: "/banner-mobile.png", link: "" },
+  };
   // Estados de Filtros e Busca
   const [searchQuery, setSearchQuery] = useState("");
   const [currentCategory, setCurrentCategory] = useState("todos");
@@ -383,45 +387,112 @@ export default function CatalogApp({
 
   return (
     <>
-      {/* Section do Banner no Topo (Substitui a logo antiga) */}
-      <section className="relative w-full max-w-full bg-[#507b1f] overflow-hidden">
-        {/* Banner Responsivo: Desktop (>= 768px) e Mobile (< 768px) */}
-        <picture className="w-full max-w-full block">
-          <source media="(min-width: 768px)" srcSet={bannerDesktop} />
-          <img
-            src={bannerMobile}
-            alt="OFFGLASS SCENT — Fragrâncias Originais em Decants"
-            className="w-full max-w-full h-auto block mx-auto"
-            loading="eager"
-            fetchPriority="high"
-          />
-        </picture>
+      {/* 1. Banner Fino no Topo (Slim Announcement Bar acima do Header) */}
+      {banners.top.ativo && (banners.top.desktop || banners.top.mobile) && (
+        <section className="w-full bg-[#18181b] overflow-hidden border-b border-black/10 relative z-50">
+          {banners.top.link ? (
+            <a
+              href={banners.top.link}
+              target={banners.top.link.startsWith("http") ? "_blank" : undefined}
+              rel={banners.top.link.startsWith("http") ? "noopener noreferrer" : undefined}
+              className="block w-full hover:opacity-95 transition-opacity"
+            >
+              <picture className="w-full block">
+                {banners.top.desktop && (
+                  <source media="(min-width: 768px)" srcSet={banners.top.desktop} />
+                )}
+                <img
+                  src={banners.top.mobile || banners.top.desktop}
+                  alt="Aviso Especial OFFGLASS"
+                  className="w-full h-[36px] sm:h-[40px] object-cover block mx-auto"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              </picture>
+            </a>
+          ) : (
+            <picture className="w-full block">
+              {banners.top.desktop && (
+                <source media="(min-width: 768px)" srcSet={banners.top.desktop} />
+              )}
+              <img
+                src={banners.top.mobile || banners.top.desktop}
+                alt="Aviso Especial OFFGLASS"
+                className="w-full h-[36px] sm:h-[40px] object-cover block mx-auto"
+                loading="eager"
+                fetchPriority="high"
+              />
+            </picture>
+          )}
+        </section>
+      )}
 
-        {/* Botão do Carrinho no Canto Superior Direito */}
-        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-5 z-20">
-          <button
-            onClick={() => setCartOpen(true)}
-            className="relative rounded-full p-2 sm:p-2.5 cursor-pointer bg-white/90 hover:bg-white text-stone-900 shadow-md backdrop-blur-md transition-all active:scale-95 flex items-center justify-center"
-            aria-label="Carrinho"
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-              <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" />
-              <circle cx="9" cy="21" r="1.4" />
-              <circle cx="18" cy="21" r="1.4" />
-            </svg>
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 btn-teal text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
-                {cartCount}
-              </span>
-            )}
-          </button>
-        </div>
-      </section>
-
-      {/* Barra de Pesquisa e Filtros imediatamente abaixo do Banner */}
+      {/* 2. Cabeçalho Sticky com Glassmorphism limpo padrão OFFGLASS SCENT */}
       <header className="sticky top-0 z-40 glass-strong border-b border-black/5 transition-colors">
+        {/* Linha Superior: Logo OFFGLASS SCENT à esquerda + Ações (WhatsApp + Carrinho) à direita */}
+        <div className="flex items-center justify-between px-4 py-2.5 sm:py-3 max-w-7xl mx-auto">
+          {/* Logo e Identidade da Marca */}
+          <Link
+            href="/"
+            onClick={(e) => {
+              if (currentCategory !== "todos" || searchQuery) {
+                e.preventDefault();
+                resetFilters();
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="flex items-center gap-2 group hover:opacity-90 transition-opacity"
+          >
+            <Image
+              src="/logo.png"
+              alt="OFFGLASS"
+              width={140}
+              height={26}
+              className="h-5 sm:h-6 w-auto object-contain"
+              priority
+            />
+            <span
+              className="text-[10px] tracking-label uppercase font-medium mt-0.5"
+              style={{ color: "var(--gold-deep)" }}
+            >
+              Scent
+            </span>
+          </Link>
+
+          {/* Ações do Header: Atendimento / Dúvidas + Carrinho de Compras */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={generalWhatsapp}
+              className="btn-glass rounded-full p-2 sm:p-2.5 cursor-pointer text-stone-600 hover:text-stone-900 transition-colors flex items-center justify-center"
+              aria-label="Tirar dúvidas no WhatsApp"
+              title="Dúvidas no WhatsApp"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative btn-glass rounded-full p-2 sm:p-2.5 cursor-pointer text-stone-900 transition-all active:scale-95 flex items-center justify-center"
+              aria-label="Carrinho"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" />
+                <circle cx="9" cy="21" r="1.4" />
+                <circle cx="18" cy="21" r="1.4" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 btn-teal text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+
         {/* Barra de Pesquisa com Autocomplete Instantâneo */}
-        <div className="px-4 pt-3 pb-2">
+        <div className="px-4 pb-2 max-w-7xl mx-auto">
           <SearchBar
             products={products}
             query={searchQuery}
@@ -457,6 +528,46 @@ export default function CatalogApp({
           />
         )}
       </header>
+
+      {/* 3. Hero Banner Vitrine (Abaixo do Header/Filtros) */}
+      {!isFilteredView && banners.hero.ativo && (banners.hero.desktop || banners.hero.mobile) && (
+        <section className="px-4 pt-3 pb-1 max-w-7xl mx-auto animate-fade-in">
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-xs border border-black/5 bg-[#507b1f]">
+            {banners.hero.link ? (
+              <a
+                href={banners.hero.link}
+                target={banners.hero.link.startsWith("http") ? "_blank" : undefined}
+                rel={banners.hero.link.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="block w-full hover:opacity-95 transition-opacity"
+              >
+                <picture className="w-full block">
+                  {banners.hero.desktop && (
+                    <source media="(min-width: 768px)" srcSet={banners.hero.desktop} />
+                  )}
+                  <img
+                    src={banners.hero.mobile || banners.hero.desktop}
+                    alt="Destaque OFFGLASS SCENT"
+                    className="w-full h-auto object-cover block mx-auto max-h-[360px]"
+                    loading="eager"
+                  />
+                </picture>
+              </a>
+            ) : (
+              <picture className="w-full block">
+                {banners.hero.desktop && (
+                  <source media="(min-width: 768px)" srcSet={banners.hero.desktop} />
+                )}
+                <img
+                  src={banners.hero.mobile || banners.hero.desktop}
+                  alt="Destaque OFFGLASS SCENT"
+                  className="w-full h-auto object-cover block mx-auto max-h-[360px]"
+                  loading="eager"
+                />
+              </picture>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Conteúdo Principal */}
       <main className="mt-4 pb-32">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/require-admin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
+import { BannersConfig } from "@/types";
 
 const BUCKET = "image";
 const FOLDER = "banners";
@@ -11,15 +12,26 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
   const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("site_config")
-    .select("chave, valor")
-    .in("chave", ["banner_desktop", "banner_mobile"]);
+  const { data } = await supabase.from("site_config").select("chave, valor");
 
-  const bannerDesktop = data?.find((d) => d.chave === "banner_desktop")?.valor || "/banner-desktop.png";
-  const bannerMobile = data?.find((d) => d.chave === "banner_mobile")?.valor || "/banner-mobile.png";
+  const map = new Map((data || []).map((d) => [d.chave, d.valor]));
 
-  return NextResponse.json({ bannerDesktop, bannerMobile });
+  const config: BannersConfig = {
+    top: {
+      ativo: map.get("banner_top_ativo") === "true",
+      desktop: map.get("banner_top_desktop") || "",
+      mobile: map.get("banner_top_mobile") || "",
+      link: map.get("banner_top_link") || "",
+    },
+    hero: {
+      ativo: map.has("banner_hero_ativo") ? map.get("banner_hero_ativo") !== "false" : true,
+      desktop: map.get("banner_hero_desktop") || map.get("banner_desktop") || "/banner-desktop.png",
+      mobile: map.get("banner_hero_mobile") || map.get("banner_mobile") || "/banner-mobile.png",
+      link: map.get("banner_hero_link") || "",
+    },
+  };
+
+  return NextResponse.json(config);
 }
 
 export async function POST(req: NextRequest) {
@@ -29,68 +41,93 @@ export async function POST(req: NextRequest) {
   const supabase = createAdminClient();
   const formData = await req.formData();
 
-  let bannerDesktop = formData.get("bannerDesktop") as string | null;
-  let bannerMobile = formData.get("bannerMobile") as string | null;
+  // Top banner values
+  const topAtivo = formData.get("topAtivo") === "true";
+  let topDesktop = (formData.get("topDesktop") as string) || "";
+  let topMobile = (formData.get("topMobile") as string) || "";
+  const topLink = (formData.get("topLink") as string) || "";
 
-  const fileDesktop = formData.get("fileDesktop") as File | null;
-  const fileMobile = formData.get("fileMobile") as File | null;
+  // Hero banner values
+  const heroAtivo = formData.get("heroAtivo") === "true";
+  let heroDesktop = (formData.get("heroDesktop") as string) || "/banner-desktop.png";
+  let heroMobile = (formData.get("heroMobile") as string) || "/banner-mobile.png";
+  const heroLink = (formData.get("heroLink") as string) || "";
 
-  // Processa upload desktop se houver arquivo
-  if (fileDesktop && fileDesktop.size > 0) {
-    const safeName = fileDesktop.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const path = `${FOLDER}/${Date.now()}-desktop-${safeName}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, fileDesktop, {
-      contentType: fileDesktop.type || "image/png",
+  // Files
+  const fileTopDesktop = formData.get("fileTopDesktop") as File | null;
+  const fileTopMobile = formData.get("fileTopMobile") as File | null;
+  const fileHeroDesktop = formData.get("fileHeroDesktop") as File | null;
+  const fileHeroMobile = formData.get("fileHeroMobile") as File | null;
+
+  async function uploadFile(file: File, prefix: string): Promise<string | null> {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    const path = `${FOLDER}/${prefix}-${Date.now()}-${safeName}`;
+    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
+      contentType: file.type || "image/png",
       upsert: true,
     });
     if (error) {
-      console.error("Erro no upload do banner desktop:", error.message);
-      return NextResponse.json({ error: `Erro no upload desktop: ${error.message}` }, { status: 500 });
+      console.error(`Erro no upload ${prefix}:`, error.message);
+      return null;
     }
     const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    if (pub?.publicUrl) bannerDesktop = pub.publicUrl;
+    return pub?.publicUrl || null;
   }
 
-  // Processa upload mobile se houver arquivo
-  if (fileMobile && fileMobile.size > 0) {
-    const safeName = fileMobile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-    const path = `${FOLDER}/${Date.now()}-mobile-${safeName}`;
-    const { error } = await supabase.storage.from(BUCKET).upload(path, fileMobile, {
-      contentType: fileMobile.type || "image/png",
-      upsert: true,
-    });
-    if (error) {
-      console.error("Erro no upload do banner mobile:", error.message);
-      return NextResponse.json({ error: `Erro no upload mobile: ${error.message}` }, { status: 500 });
-    }
-    const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    if (pub?.publicUrl) bannerMobile = pub.publicUrl;
+  if (fileTopDesktop && fileTopDesktop.size > 0) {
+    const url = await uploadFile(fileTopDesktop, "top-desktop");
+    if (url) topDesktop = url;
   }
 
-  // Salva na tabela site_config
-  const updates = [];
-  if (bannerDesktop) {
-    updates.push({ chave: "banner_desktop", valor: bannerDesktop, atualizado_em: new Date().toISOString() });
-  }
-  if (bannerMobile) {
-    updates.push({ chave: "banner_mobile", valor: bannerMobile, atualizado_em: new Date().toISOString() });
+  if (fileTopMobile && fileTopMobile.size > 0) {
+    const url = await uploadFile(fileTopMobile, "top-mobile");
+    if (url) topMobile = url;
   }
 
-  if (updates.length > 0) {
-    const { error: dbError } = await supabase.from("site_config").upsert(updates);
-    if (dbError) {
-      console.error("Erro ao salvar site_config:", dbError.message);
-      return NextResponse.json({ error: dbError.message }, { status: 500 });
-    }
+  if (fileHeroDesktop && fileHeroDesktop.size > 0) {
+    const url = await uploadFile(fileHeroDesktop, "hero-desktop");
+    if (url) heroDesktop = url;
+  }
+
+  if (fileHeroMobile && fileHeroMobile.size > 0) {
+    const url = await uploadFile(fileHeroMobile, "hero-mobile");
+    if (url) heroMobile = url;
+  }
+
+  const updates = [
+    { chave: "banner_top_ativo", valor: topAtivo ? "true" : "false" },
+    { chave: "banner_top_desktop", valor: topDesktop },
+    { chave: "banner_top_mobile", valor: topMobile },
+    { chave: "banner_top_link", valor: topLink },
+    { chave: "banner_hero_ativo", valor: heroAtivo ? "true" : "false" },
+    { chave: "banner_hero_desktop", valor: heroDesktop },
+    { chave: "banner_hero_mobile", valor: heroMobile },
+    { chave: "banner_hero_link", valor: heroLink },
+  ].map((item) => ({ ...item, atualizado_em: new Date().toISOString() }));
+
+  const { error: dbError } = await supabase.from("site_config").upsert(updates);
+  if (dbError) {
+    console.error("Erro ao salvar site_config:", dbError.message);
+    return NextResponse.json({ error: dbError.message }, { status: 500 });
   }
 
   revalidatePath("/");
   revalidatePath("/admin/banners");
 
-  return NextResponse.json({
-    ok: true,
-    bannerDesktop: bannerDesktop || "/banner-desktop.png",
-    bannerMobile: bannerMobile || "/banner-mobile.png",
-  });
-}
+  const responseConfig: BannersConfig = {
+    top: {
+      ativo: topAtivo,
+      desktop: topDesktop,
+      mobile: topMobile,
+      link: topLink,
+    },
+    hero: {
+      ativo: heroAtivo,
+      desktop: heroDesktop,
+      mobile: heroMobile,
+      link: heroLink,
+    },
+  };
 
+  return NextResponse.json({ ok: true, config: responseConfig });
+}

@@ -81,6 +81,18 @@ export interface MensagemConfig {
   template: string;
 }
 
+export interface BannerItemConfig {
+  ativo: boolean;
+  desktop: string;
+  mobile: string;
+  link?: string;
+}
+
+export interface BannersConfig {
+  top: BannerItemConfig;
+  hero: BannerItemConfig;
+}
+
 /* ---------- Linhas cruas vindas do banco (snake_case) ---------- */
 export interface ProdutoRow {
   id: string;

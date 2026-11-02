@@ -32,8 +32,7 @@ export default async function Home() {
       accords={accords}
       mensagemPedidoTemplate={mensagemPedidoTemplate}
       salesCounts={salesCounts}
-      bannerDesktop={bannersConfig.bannerDesktop}
-      bannerMobile={bannersConfig.bannerMobile}
+      bannersConfig={bannersConfig}
     />
   );
 }

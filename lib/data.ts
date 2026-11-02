@@ -5,6 +5,7 @@ import {
   Accord,
   ProdutoRow,
   fromProdutoRow,
+  BannersConfig,
 } from "@/types";
 
 export async function getProducts(): Promise<Product[]> {
@@ -76,26 +77,45 @@ export async function getSalesCounts(): Promise<Record<string, number>> {
   }
 }
 
-export async function getBannersConfig(): Promise<{ bannerDesktop: string; bannerMobile: string }> {
-  const fallback = {
-    bannerDesktop: "/banner-desktop.png",
-    bannerMobile: "/banner-mobile.png",
+export async function getBannersConfig(): Promise<BannersConfig> {
+  const fallback: BannersConfig = {
+    top: {
+      ativo: false,
+      desktop: "",
+      mobile: "",
+      link: "",
+    },
+    hero: {
+      ativo: true,
+      desktop: "/banner-desktop.png",
+      mobile: "/banner-mobile.png",
+      link: "",
+    },
   };
+
   try {
     const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("site_config")
-      .select("chave, valor")
-      .in("chave", ["banner_desktop", "banner_mobile"]);
+      .select("chave, valor");
 
     if (error || !data || data.length === 0) return fallback;
 
-    const desktop = data.find((d) => d.chave === "banner_desktop")?.valor;
-    const mobile = data.find((d) => d.chave === "banner_mobile")?.valor;
+    const map = new Map(data.map((d) => [d.chave, d.valor]));
 
     return {
-      bannerDesktop: desktop || fallback.bannerDesktop,
-      bannerMobile: mobile || fallback.bannerMobile,
+      top: {
+        ativo: map.get("banner_top_ativo") === "true",
+        desktop: map.get("banner_top_desktop") || fallback.top.desktop,
+        mobile: map.get("banner_top_mobile") || fallback.top.mobile,
+        link: map.get("banner_top_link") || "",
+      },
+      hero: {
+        ativo: map.has("banner_hero_ativo") ? map.get("banner_hero_ativo") !== "false" : true,
+        desktop: map.get("banner_hero_desktop") || map.get("banner_desktop") || fallback.hero.desktop,
+        mobile: map.get("banner_hero_mobile") || map.get("banner_mobile") || fallback.hero.mobile,
+        link: map.get("banner_hero_link") || "",
+      },
     };
   } catch {
     return fallback;
