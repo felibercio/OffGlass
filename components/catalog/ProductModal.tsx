@@ -374,6 +374,16 @@ export default function ProductModal({
                     >
                       Adicionar ao carrinho
                     </button>
+
+                    {!product.precoFrascoLacrado && (
+                      <button
+                        type="button"
+                        onClick={handleConsultarFrascoOriginal}
+                        className="w-full mt-2.5 text-center text-xs sm:text-sm text-stone-500 hover:text-stone-800 underline underline-offset-4 transition-colors cursor-pointer"
+                      >
+                        Consultar disponibilidade e valor do frasco inteiro no WhatsApp
+                      </button>
+                    )}
                   </>
                 )}
               </>

@@ -138,24 +138,33 @@ export default function ProductCard({
           )}
         </div>
       ) : (
-        <div className="mt-auto pt-3 border-t border-black/5 flex items-center justify-between text-xs w-full">
-          <div className="flex flex-col">
-            <span className="text-[10px] text-stone-400">Decants a partir de</span>
-            <div className="flex items-center gap-1.5">
-              {hasPromo && (
-                <span className="text-[11px] line-through text-stone-400 font-normal">
-                  {formatBRL(product.precos[2])}
+        <div className="mt-auto pt-3 border-t border-black/5 flex flex-col gap-1.5 w-full">
+          <div className="flex items-center justify-between text-xs w-full">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-stone-400">Decants a partir de</span>
+              <div className="flex items-center gap-1.5">
+                {hasPromo && (
+                  <span className="text-[11px] line-through text-stone-400 font-normal">
+                    {formatBRL(product.precos[2])}
+                  </span>
+                )}
+                <span className="text-xs sm:text-sm font-bold text-stone-900">
+                  {formatBRL(precoComPromo(product, 2))}
                 </span>
-              )}
-              <span className="text-xs sm:text-sm font-bold text-stone-900">
-                {formatBRL(precoComPromo(product, 2))}
-              </span>
+              </div>
             </div>
+            {isHibrido && (
+              <span className="text-[9px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                + Opção Lacrado
+              </span>
+            )}
           </div>
-          {isHibrido && (
-            <span className="text-[9px] font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
-              + Opção Lacrado
-            </span>
+
+          {!product.vendeLacrado && (
+            <div className="flex items-center justify-between text-[11px] font-medium text-teal-700/90 pt-1 border-t border-black/[0.04]">
+              <span>Frasco inteiro sob consulta</span>
+              <span className="text-[10px] underline">WhatsApp →</span>
+            </div>
           )}
         </div>
       )}
