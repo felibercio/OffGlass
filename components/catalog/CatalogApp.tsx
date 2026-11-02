@@ -379,50 +379,45 @@ export default function CatalogApp({
 
   return (
     <>
-      {/* Cabeçalho Sticky com Glassmorphism limpo padrão OFFGLASS */}
-      <header className="sticky top-0 z-40 glass-strong border-b border-black/5 transition-colors">
-        <div className="flex items-center justify-between px-4 py-3">
-          {/* Logo transparente com mix-blend-multiply padrão original */}
-          <div className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="OFFGLASS"
-              width={140}
-              height={26}
-              className="h-5 sm:h-6 w-auto object-contain mix-blend-multiply"
-              priority
-            />
-            <span
-              className="text-[10px] tracking-label uppercase font-medium mt-0.5"
-              style={{ color: "var(--gold-deep)" }}
-            >
-              Scent
-            </span>
-          </div>
+      {/* Section do Banner no Topo (Substitui a logo antiga) */}
+      <section className="relative w-full max-w-full bg-[#507b1f] overflow-hidden">
+        {/* Banner Responsivo: Desktop (>= 768px) e Mobile (< 768px) */}
+        <picture className="w-full max-w-full block">
+          <source media="(min-width: 768px)" srcSet="/banner-desktop.png" />
+          <img
+            src="/banner-mobile.png"
+            alt="OFFGLASS SCENT — Fragrâncias Originais em Decants"
+            className="w-full max-w-full h-auto block mx-auto"
+            loading="eager"
+            fetchPriority="high"
+          />
+        </picture>
 
-          {/* Sacola de Compras */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCartOpen(true)}
-              className="relative btn-glass rounded-full p-2.5 cursor-pointer"
-              aria-label="Carrinho"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
-                <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" />
-                <circle cx="9" cy="21" r="1.4" />
-                <circle cx="18" cy="21" r="1.4" />
-              </svg>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 btn-teal text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          </div>
+        {/* Botão do Carrinho no Canto Superior Direito */}
+        <div className="absolute top-2.5 right-2.5 sm:top-4 sm:right-5 z-20">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="relative rounded-full p-2 sm:p-2.5 cursor-pointer bg-white/90 hover:bg-white text-stone-900 shadow-md backdrop-blur-md transition-all active:scale-95 flex items-center justify-center"
+            aria-label="Carrinho"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M3 6h2l2.4 12.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.6L21 8H6" />
+              <circle cx="9" cy="21" r="1.4" />
+              <circle cx="18" cy="21" r="1.4" />
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 btn-teal text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow">
+                {cartCount}
+              </span>
+            )}
+          </button>
         </div>
+      </section>
 
+      {/* Barra de Pesquisa e Filtros imediatamente abaixo do Banner */}
+      <header className="sticky top-0 z-40 glass-strong border-b border-black/5 transition-colors">
         {/* Barra de Pesquisa com Autocomplete Instantâneo */}
-        <div className="px-4 pb-2">
+        <div className="px-4 pt-3 pb-2">
           <SearchBar
             products={products}
             query={searchQuery}
@@ -432,7 +427,7 @@ export default function CatalogApp({
         </div>
 
         {/* Elemento ChipGroup de Categorias (Inspirado em 21st.dev/@kuratlielia/components/chip-group) */}
-        <div className="pt-0.5 pb-1.5">
+        <div className="pt-0.5 pb-2">
           <ChipGroup
             options={categoryOptions}
             value={currentCategory}
@@ -458,27 +453,6 @@ export default function CatalogApp({
           />
         )}
       </header>
-
-      {/* Hero de Boas-vindas (Exibido na Home inicial com tipografia de alto contraste) */}
-      {!isFilteredView && (
-        <section className="px-5 pt-6 pb-2 animate-fade-in">
-          <p
-            className="font-display italic text-3xl leading-tight"
-            style={{ color: "var(--ink)" }}
-          >
-            Olá,
-            <br />
-            seja bem-vinda(o).
-          </p>
-          <p
-            className="text-sm mt-3 max-w-md leading-relaxed"
-            style={{ color: "var(--ink-soft)" }}
-          >
-            Fragrâncias originais decantadas com cuidado em frascos de <b>2ml, 5ml e 10ml</b>, etiquetados e
-            prontos para você experimentar no conforto da sua rotina.
-          </p>
-        </section>
-      )}
 
       {/* Conteúdo Principal */}
       <main className="mt-4 pb-32">
