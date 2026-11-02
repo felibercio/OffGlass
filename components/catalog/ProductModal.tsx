@@ -170,9 +170,14 @@ export default function ProductModal({
               </div>
             )}
 
-            <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
-              {product.marca}
-            </p>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <p className="text-[10px] tracking-label uppercase font-medium" style={{ color: "var(--gold-deep)" }}>
+                {product.marca}
+              </p>
+              <span className="text-[10px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">
+                {product.genero === "masculino" ? "Masculino" : product.genero === "feminino" ? "Feminino" : "Compartilhado"}
+              </span>
+            </div>
             <h2 className="font-display text-2xl mb-2">{product.nome}</h2>
 
             {product.descricaoCompleta && (

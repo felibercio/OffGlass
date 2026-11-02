@@ -707,13 +707,13 @@ export default function ProductForm({
                       key={g}
                       type="button"
                       onClick={() => update("genero", g)}
-                      className={`py-2 px-1 rounded-xl text-[11px] font-semibold border transition cursor-pointer text-center ${
+                      className={`py-2 px-1 rounded-xl text-xs font-semibold border transition cursor-pointer text-center ${
                         (form.genero || "compartilhado") === g
                           ? "bg-stone-900 text-white border-transparent shadow-sm"
                           : "bg-white/70 text-stone-700 border-black/10 hover:bg-white"
                       }`}
                     >
-                      {g === "compartilhado" ? "Unissex" : g === "masculino" ? "Masc." : "Fem."}
+                      {g === "compartilhado" ? "Compartilhado" : g === "masculino" ? "Masculino" : "Feminino"}
                     </button>
                   ))}
                 </div>

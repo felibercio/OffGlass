@@ -146,8 +146,12 @@ export default function SearchBar({
 
                     {/* Informações: Marca, Nome e Breve Descrição */}
                     <div className="min-w-0 flex-1">
-                      <p className="text-[9px] tracking-label uppercase font-medium text-amber-700">
-                        {p.marca}
+                      <p className="text-[9px] tracking-label uppercase font-medium text-amber-700 flex items-center gap-1.5">
+                        <span>{p.marca}</span>
+                        <span className="text-stone-300">·</span>
+                        <span className="text-stone-500 font-normal">
+                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhado"}
+                        </span>
                       </p>
                       <p className="text-xs sm:text-sm font-semibold truncate text-stone-900 group-hover:text-teal-800 transition-colors">
                         {p.nome}
