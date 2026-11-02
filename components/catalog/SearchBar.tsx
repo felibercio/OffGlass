@@ -150,7 +150,7 @@ export default function SearchBar({
                         <span>{p.marca}</span>
                         <span className="text-stone-300">·</span>
                         <span className="text-stone-500 font-normal">
-                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhado"}
+                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhável"}
                         </span>
                       </p>
                       <p className="text-xs sm:text-sm font-semibold truncate text-stone-900 group-hover:text-teal-800 transition-colors">

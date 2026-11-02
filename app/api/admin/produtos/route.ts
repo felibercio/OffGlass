@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
   revalidatePath("/");
+  revalidatePath("/admin/produtos");
   return NextResponse.json({ ok: true });
 }
 

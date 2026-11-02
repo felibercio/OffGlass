@@ -105,8 +105,8 @@ export default function ProductCard({
         <p className="text-[10px] tracking-label uppercase font-medium truncate" style={{ color: "var(--gold-deep)" }}>
           {product.marca}
         </p>
-        <span className="text-[9px] uppercase tracking-wider font-semibold text-stone-500 bg-stone-100/90 px-1.5 py-0.5 rounded-full shrink-0">
-          {product.genero === "masculino" ? "Masc" : product.genero === "feminino" ? "Fem" : "Compartilhado"}
+        <span className="text-[9px] uppercase tracking-wider font-semibold text-stone-500 bg-stone-100/90 px-2 py-0.5 rounded-full shrink-0">
+          {product.genero === "masculino" ? "Masculino" : product.genero === "feminino" ? "Feminino" : "Compartilhável"}
         </span>
       </div>
       <h3 className="font-display text-base sm:text-lg leading-snug mb-1" style={{ color: "var(--ink)" }}>

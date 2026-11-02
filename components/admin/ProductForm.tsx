@@ -713,7 +713,7 @@ export default function ProductForm({
                           : "bg-white/70 text-stone-700 border-black/10 hover:bg-white"
                       }`}
                     >
-                      {g === "compartilhado" ? "Compartilhado" : g === "masculino" ? "Masculino" : "Feminino"}
+                      {g === "compartilhado" ? "Compartilhável" : g === "masculino" ? "Masculino" : "Feminino"}
                     </button>
                   ))}
                 </div>

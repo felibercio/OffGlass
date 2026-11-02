@@ -169,7 +169,7 @@ export function CategorySubFilters({
     { key: "todos", label: "Todos" },
     { key: "masculino", label: "Masculino" },
     { key: "feminino", label: "Feminino" },
-    { key: "compartilhado", label: "Compartilhado" },
+    { key: "compartilhado", label: "Compartilhável" },
   ];
 
   return (

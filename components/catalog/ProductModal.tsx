@@ -175,7 +175,7 @@ export default function ProductModal({
                 {product.marca}
               </p>
               <span className="text-[10px] font-semibold tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-700 border border-stone-200">
-                {product.genero === "masculino" ? "Masculino" : product.genero === "feminino" ? "Feminino" : "Compartilhado"}
+                {product.genero === "masculino" ? "Masculino" : product.genero === "feminino" ? "Feminino" : "Compartilhável"}
               </span>
             </div>
             <h2 className="font-display text-2xl mb-2">{product.nome}</h2>

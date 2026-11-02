@@ -57,7 +57,7 @@ export default async function AdminProdutosPage() {
                       </p>
                       {p.genero && (
                         <span className="text-[9px] bg-stone-100 text-stone-600 px-1.5 py-0.5 rounded-full font-medium">
-                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhado"}
+                          {p.genero === "masculino" ? "Masculino" : p.genero === "feminino" ? "Feminino" : "Compartilhável"}
                         </span>
                       )}
                       {p.destaque && (
