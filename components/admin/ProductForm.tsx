@@ -476,7 +476,7 @@ export default function ProductForm({
         {/* Coluna Principal Esquerda (7 cols no desktop): Dados, Descrições, Acordes e Notas */}
         <div className="lg:col-span-7 xl:col-span-7 space-y-6">
           {/* Card 1: Identificação & Classificação */}
-          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4 relative z-30">
             <h3 className="font-display text-base font-semibold border-b border-black/5 pb-2 text-stone-900">
               Identificação & Classificação
             </h3>
@@ -740,7 +740,7 @@ export default function ProductForm({
           </div>
 
           {/* Card 2: Textos de Apresentação */}
-          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4 relative z-20">
             <div className="border-b border-black/5 pb-2">
               <h3 className="font-display text-base font-semibold text-stone-900">
                 Textos de Apresentação
@@ -790,7 +790,7 @@ export default function ProductForm({
           </div>
 
           {/* Card 3: Perfil Olfativo & Acordes */}
-          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4 relative z-10">
             <div className="border-b border-black/5 pb-2">
               <h3 className="font-display text-base font-semibold text-stone-900">
                 Perfil Olfativo & Acordes
@@ -849,31 +849,79 @@ export default function ProductForm({
                 )}
               </div>
 
-              {/* Dropdown Pesquisável de Acordes */}
-              <div className="relative">
+              {/* Seletor Expansível de Acordes (In-Flow / Accordion - Nunca sobrepõe outros cards) */}
+              <div className="w-full">
                 <button
                   type="button"
                   onClick={() => setShowAccordDropdown(!showAccordDropdown)}
-                  className="w-full rounded-xl px-3.5 py-2 text-xs flex items-center justify-between font-semibold border border-stone-300 bg-white hover:bg-stone-50 cursor-pointer text-stone-700"
+                  className={`w-full rounded-xl px-4 py-3 text-xs sm:text-sm flex items-center justify-between font-semibold border transition-all cursor-pointer ${
+                    showAccordDropdown
+                      ? "bg-teal-50/90 text-teal-900 border-teal-300 shadow-xs"
+                      : "bg-white hover:bg-stone-50 border-stone-300 text-stone-800 hover:border-stone-400"
+                  }`}
                 >
-                  <span>+ Adicionar / Buscar Acordes Olfativos</span>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-stone-400">
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-teal-600/10 text-teal-800 flex items-center justify-center text-xs font-bold shrink-0">
+                      {showAccordDropdown ? "▲" : "+"}
+                    </span>
+                    <span>
+                      {showAccordDropdown
+                        ? "Recolher Seleção de Acordes"
+                        : "+ Adicionar / Buscar Acordes Olfativos"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-stone-400">
+                    <span className="text-[11px] font-medium hidden sm:inline">
+                      {showAccordDropdown ? "Clique para fechar" : "Clique para abrir"}
+                    </span>
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={`transition-transform duration-200 ${showAccordDropdown ? "rotate-180 text-teal-700" : ""}`}
+                    >
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                  </div>
                 </button>
 
                 {showAccordDropdown && (
-                  <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-xl shadow-xl border border-black/10 p-2.5 animate-fade-in max-h-64 overflow-y-auto bg-white">
-                    <input
-                      type="text"
-                      value={accordSearch}
-                      onChange={(e) => setAccordSearch(e.target.value)}
-                      placeholder="Pesquisar acorde (ex: Amadeirado, Cítrico, Baunilha)..."
-                      className="w-full text-xs rounded-lg px-2.5 py-1.5 mb-2 border border-black/10"
-                      autoFocus
-                    />
+                  <div className="mt-3 p-3.5 sm:p-4 rounded-xl border border-stone-200 bg-stone-50/95 space-y-3 animate-fade-in shadow-inner">
+                    {/* Campo de Busca com Botão de Limpar */}
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                      </div>
+                      <input
+                        type="text"
+                        value={accordSearch}
+                        onChange={(e) => setAccordSearch(e.target.value)}
+                        placeholder="Pesquisar acorde (ex: Amadeirado, Cítrico, Baunilha)..."
+                        className="w-full text-xs sm:text-sm rounded-lg pl-9 pr-8 py-2.5 bg-white border border-stone-300 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-600 transition"
+                        autoFocus
+                      />
+                      {accordSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setAccordSearch("")}
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-700 text-xs font-bold cursor-pointer"
+                          title="Limpar pesquisa"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
 
-                    <div className="space-y-1">
+                    {/* Lista Rolável de Acordes com Feedback Visual */}
+                    <div className="max-h-64 sm:max-h-72 overflow-y-auto space-y-1.5 pr-1">
                       {filteredAccords.map((a) => {
                         const isSelected = form.acordes.includes(a.key);
                         return (
@@ -881,70 +929,114 @@ export default function ProductForm({
                             key={a.key}
                             type="button"
                             onClick={() => toggleAccord(a.key)}
-                            className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                              isSelected ? "bg-teal-50 text-teal-900 border border-teal-200" : "hover:bg-stone-50 text-stone-800"
+                            className={`w-full text-left px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-between transition cursor-pointer ${
+                              isSelected
+                                ? "bg-teal-100/70 text-teal-950 border border-teal-300 shadow-2xs"
+                                : "bg-white hover:bg-stone-100/80 text-stone-900 border border-stone-200/80"
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 rounded-full" style={{ background: a.cor }} />
-                              <span style={{ color: "#1b1f1d" }}>{a.label}</span>
+                            <div className="flex items-center gap-2.5">
+                              <span
+                                className="w-3.5 h-3.5 rounded-full shrink-0 shadow-2xs border border-black/10"
+                                style={{ background: a.cor }}
+                              />
+                              <span className="text-stone-900 font-medium">{a.label}</span>
                             </div>
-                            <span className="text-xs font-bold">{isSelected ? "✓" : "+"}</span>
+                            <span
+                              className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                isSelected
+                                  ? "bg-teal-700 text-white"
+                                  : "bg-stone-100 text-stone-600"
+                              }`}
+                            >
+                              {isSelected ? "✓ Adicionado" : "+ Adicionar"}
+                            </span>
                           </button>
                         );
                       })}
 
                       {filteredAccords.length === 0 && (
-                        <p className="text-[11px] text-stone-400 py-1 text-center">Nenhum acorde encontrado.</p>
+                        <div className="py-4 text-center">
+                          <p className="text-xs text-stone-500">
+                            Nenhum acorde encontrado para &quot;{accordSearch}&quot;.
+                          </p>
+                          <p className="text-[11px] text-stone-400 mt-0.5">
+                            Você pode criá-lo logo abaixo.
+                          </p>
+                        </div>
                       )}
+                    </div>
 
-                      <div className="border-t border-black/10 pt-2 mt-2">
-                        {!isCreatingAccord ? (
-                          <button
-                            type="button"
-                            onClick={() => setIsCreatingAccord(true)}
-                            className="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-teal-700 hover:bg-teal-50 flex items-center gap-1.5 cursor-pointer"
-                          >
-                            <span>+ Criar novo acorde rápido</span>
-                          </button>
-                        ) : (
-                          <div className="p-2.5 rounded-lg bg-stone-50 border border-stone-200 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[11px] font-bold text-stone-700">Novo Acorde:</span>
-                              <button
-                                type="button"
-                                onClick={() => setIsCreatingAccord(false)}
-                                className="text-[10px] text-stone-500 hover:underline"
-                              >
-                                Fechar
-                              </button>
-                            </div>
-                            <input
-                              type="text"
-                              value={newAccordName}
-                              onChange={(e) => setNewAccordName(e.target.value)}
-                              placeholder="Nome do acorde"
-                              className="w-full text-xs rounded px-2 py-1 border border-stone-300"
-                            />
-                            <div className="flex items-center gap-2">
+                    {/* Criar Novo Acorde Rápido */}
+                    <div className="border-t border-stone-200 pt-2.5 mt-2">
+                      {!isCreatingAccord ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsCreatingAccord(true)}
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-teal-800 hover:bg-teal-50 flex items-center gap-2 cursor-pointer transition border border-dashed border-teal-400/60 bg-white/70"
+                        >
+                          <span className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center text-[11px] font-bold">+</span>
+                          <span>Criar novo acorde personalizado</span>
+                        </button>
+                      ) : (
+                        <div className="p-3 rounded-xl bg-white border border-teal-300 shadow-xs space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-stone-800">
+                              Novo Acorde Olfativo:
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setIsCreatingAccord(false)}
+                              className="text-xs text-stone-500 hover:text-stone-800 underline cursor-pointer"
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                          <input
+                            type="text"
+                            value={newAccordName}
+                            onChange={(e) => setNewAccordName(e.target.value)}
+                            placeholder="Nome do acorde (ex: Especiado Frio, Couro Nobre)"
+                            className="w-full text-xs sm:text-sm rounded-lg px-3 py-2 border border-stone-300"
+                          />
+                          <div className="flex items-center gap-2.5">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <label className="text-[11px] font-medium text-stone-500">Cor:</label>
                               <input
                                 type="color"
                                 value={newAccordColor}
                                 onChange={(e) => setNewAccordColor(e.target.value)}
-                                className="w-8 h-7 rounded cursor-pointer"
+                                className="w-8 h-8 rounded-lg cursor-pointer border border-stone-300 p-0.5 bg-white"
                               />
-                              <button
-                                type="button"
-                                onClick={handleQuickCreateAccord}
-                                disabled={savingNewAccord || !newAccordName.trim()}
-                                className="btn-teal rounded px-3 py-1 text-xs font-semibold flex-1 disabled:opacity-40"
-                              >
-                                {savingNewAccord ? "Criando..." : "Salvar Acorde"}
-                              </button>
                             </div>
+                            <button
+                              type="button"
+                              onClick={handleQuickCreateAccord}
+                              disabled={savingNewAccord || !newAccordName.trim()}
+                              className="btn-teal rounded-lg px-4 py-2 text-xs font-semibold flex-1 disabled:opacity-40 cursor-pointer shadow-xs"
+                            >
+                              {savingNewAccord ? "Criando..." : "Salvar e Adicionar"}
+                            </button>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Botão Concluir Seleção */}
+                    <div className="pt-1 flex items-center justify-between border-t border-stone-200">
+                      <span className="text-[11px] text-stone-500">
+                        {form.acordes.length} acorde{form.acordes.length === 1 ? "" : "s"} selecionado{form.acordes.length === 1 ? "" : "s"}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAccordDropdown(false);
+                          setAccordSearch("");
+                        }}
+                        className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-900 text-white hover:bg-stone-800 transition cursor-pointer"
+                      >
+                        Concluir Seleção
+                      </button>
                     </div>
                   </div>
                 )}
@@ -953,7 +1045,7 @@ export default function ProductForm({
           </div>
 
           {/* Card 4: Pirâmide Olfativa (Seção Própria com 3 Colunas no Desktop) */}
-          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4">
+          <div className="glass rounded-2xl p-4 sm:p-5 border border-white/60 shadow-xs space-y-4 relative z-0">
             <div className="flex items-center justify-between border-b border-black/5 pb-2">
               <div>
                 <h3 className="font-display text-base font-semibold text-stone-900">
