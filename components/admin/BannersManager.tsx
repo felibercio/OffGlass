@@ -141,10 +141,15 @@ export default function BannersManager({
       setFileHeroMobile(null);
 
       if (data.config) {
+        setTopAtivo(data.config.top.ativo);
+        setTopLink(data.config.top.link || "");
         setTopDesktop(data.config.top.desktop);
         setPreviewTopDesktop(data.config.top.desktop);
         setTopMobile(data.config.top.mobile);
         setPreviewTopMobile(data.config.top.mobile);
+
+        setHeroAtivo(data.config.hero.ativo);
+        setHeroLink(data.config.hero.link || "");
         setHeroDesktop(data.config.hero.desktop);
         setPreviewHeroDesktop(data.config.hero.desktop);
         setHeroMobile(data.config.hero.mobile);
@@ -542,6 +547,19 @@ export default function BannersManager({
           </div>
         </div>
       </div>
+
+      {/* Alerta de Feedback no Rodapé */}
+      {msg && (
+        <div
+          className={`p-3.5 mt-6 rounded-xl text-xs sm:text-sm font-medium border animate-fade-in ${
+            msg.type === "success"
+              ? "bg-teal-50 text-teal-800 border-teal-200"
+              : "bg-rose-50 text-rose-800 border-rose-200"
+          }`}
+        >
+          {msg.text}
+        </div>
+      )}
 
       {/* Barra de Salvamento Geral */}
       <div className="mt-8 pt-5 border-t border-black/10 flex flex-col sm:flex-row items-center justify-between gap-4">

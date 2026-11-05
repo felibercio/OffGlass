@@ -12,9 +12,26 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Não autenticado." }, { status: 401 });
 
   const supabase = createAdminClient();
-  const { data } = await supabase.from("site_config").select("chave, valor");
+  let map = new Map<string, string>();
 
-  const map = new Map((data || []).map((d) => [d.chave, d.valor]));
+  // 1. Tenta ler de site_config
+  const { data: siteConfigData, error: siteConfigError } = await supabase
+    .from("site_config")
+    .select("chave, valor");
+
+  if (!siteConfigError && siteConfigData && siteConfigData.length > 0) {
+    map = new Map(siteConfigData.map((d) => [d.chave, d.valor]));
+  } else {
+    // 2. Fallback resiliente para mensagens_config
+    const { data: msgConfigData } = await supabase
+      .from("mensagens_config")
+      .select("chave, template")
+      .like("chave", "banner_%");
+
+    if (msgConfigData) {
+      map = new Map(msgConfigData.map((d) => [d.chave, d.template]));
+    }
+  }
 
   const config: BannersConfig = {
     top: {
@@ -94,7 +111,7 @@ export async function POST(req: NextRequest) {
     if (url) heroMobile = url;
   }
 
-  const updates = [
+  const rawUpdates = [
     { chave: "banner_top_ativo", valor: topAtivo ? "true" : "false" },
     { chave: "banner_top_desktop", valor: topDesktop },
     { chave: "banner_top_mobile", valor: topMobile },
@@ -103,12 +120,39 @@ export async function POST(req: NextRequest) {
     { chave: "banner_hero_desktop", valor: heroDesktop },
     { chave: "banner_hero_mobile", valor: heroMobile },
     { chave: "banner_hero_link", valor: heroLink },
-  ].map((item) => ({ ...item, atualizado_em: new Date().toISOString() }));
+  ];
 
-  const { error: dbError } = await supabase.from("site_config").upsert(updates);
-  if (dbError) {
-    console.error("Erro ao salvar site_config:", dbError.message);
-    return NextResponse.json({ error: dbError.message }, { status: 500 });
+  // 1. Tenta salvar na tabela site_config
+  const siteConfigUpdates = rawUpdates.map((item) => ({
+    ...item,
+    atualizado_em: new Date().toISOString(),
+  }));
+
+  const { error: siteConfigError } = await supabase
+    .from("site_config")
+    .upsert(siteConfigUpdates);
+
+  // Se site_config falhar (ex: tabela não existe no schema do Supabase - PGRST205),
+  // faz fallback automático e transparente para a tabela mensagens_config (chave/template)
+  if (siteConfigError) {
+    console.warn(
+      "site_config indisponível no Supabase, salvando em mensagens_config:",
+      siteConfigError.message
+    );
+
+    const msgConfigUpdates = rawUpdates.map((item) => ({
+      chave: item.chave,
+      template: item.valor,
+    }));
+
+    const { error: msgError } = await supabase
+      .from("mensagens_config")
+      .upsert(msgConfigUpdates);
+
+    if (msgError) {
+      console.error("Erro ao salvar em mensagens_config:", msgError.message);
+      return NextResponse.json({ error: msgError.message }, { status: 500 });
+    }
   }
 
   revalidatePath("/");

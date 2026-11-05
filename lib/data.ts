@@ -95,13 +95,28 @@ export async function getBannersConfig(): Promise<BannersConfig> {
 
   try {
     const supabase = createPublicClient();
-    const { data, error } = await supabase
+    let map = new Map<string, string>();
+
+    // 1. Tenta ler da tabela site_config
+    const { data: siteData, error: siteError } = await supabase
       .from("site_config")
       .select("chave, valor");
 
-    if (error || !data || data.length === 0) return fallback;
+    if (!siteError && siteData && siteData.length > 0) {
+      map = new Map(siteData.map((d) => [d.chave, d.valor]));
+    } else {
+      // 2. Fallback resiliente para a tabela mensagens_config (chave/template)
+      const { data: msgData } = await supabase
+        .from("mensagens_config")
+        .select("chave, template")
+        .like("chave", "banner_%");
 
-    const map = new Map(data.map((d) => [d.chave, d.valor]));
+      if (msgData && msgData.length > 0) {
+        map = new Map(msgData.map((d) => [d.chave, d.template]));
+      }
+    }
+
+    if (map.size === 0) return fallback;
 
     return {
       top: {
